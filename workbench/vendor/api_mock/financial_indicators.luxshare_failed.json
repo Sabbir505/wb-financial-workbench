@@ -1,0 +1,11 @@
+{
+ "object_id": "S002475",
+ "period": "2026Q4",
+ "unit": "亿元（比率为 %）",
+ "source": "公告摘录确定性计算（icg.research.compute_metrics）",
+ "as_of": "2026-11-02T07:12:34",
+ "metrics": {
+  "yoy_first": 15.0,
+  "pct_change_event": 17.5
+ }
+}

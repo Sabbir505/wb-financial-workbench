@@ -1,0 +1,7 @@
+{
+  "models": [
+    {"id": "kimi-k3", "provider": "moonshot", "role": "analysis",
+     "constraints": {"temperature": 1.0},
+     "fallback": "模型不可用时推断节显式标注，不编造（失败显式化）"}
+  ]
+}

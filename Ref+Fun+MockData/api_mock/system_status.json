@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "uptime_hours": 26.5,
+  "stores": {
+    "anchor": {"events": 57, "predictions": 64, "backtests": 40},
+    "icg": {"events": 105, "predictions": 118, "backtests": 68}
+  },
+  "research": {"waiting_review": 9, "context_ready": 7, "failed": 6},
+  "last_pipeline_run": {"anchor": "2026-11-02T07:12:00", "morning": "2026-11-02T06:57:00"}
+}

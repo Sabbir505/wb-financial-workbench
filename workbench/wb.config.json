@@ -1,0 +1,10 @@
+{
+  "research_api_base": "http://127.0.0.1:8012/api",
+  "research_mcp_url": "http://127.0.0.1:8012/mcp",
+  "vault_root": "research-vault",
+  "data_dir": "wb-data",
+  "webhook_port": 8898,
+  "reviewer": "张研",
+  "lang": "en",
+  "timeout_ms": 8000
+}

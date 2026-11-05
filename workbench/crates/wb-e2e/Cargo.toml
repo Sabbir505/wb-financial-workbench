@@ -1,0 +1,12 @@
+[package]
+name = "wb-e2e"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+wb-core = { path = "../wb-core" }
+wb-mock = { path = "../wb-mock" }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+ureq = { workspace = true }
+tempfile = "3"

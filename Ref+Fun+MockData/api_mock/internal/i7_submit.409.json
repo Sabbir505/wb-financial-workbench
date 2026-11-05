@@ -1,0 +1,7 @@
+{
+  "ok": false,
+  "error": "conflict",
+  "message": "任务当前状态为 SUCCEEDED，不可重复审核（需 WAITING_REVIEW）；若为重复提交请复用原 idempotency_key 的回执",
+  "task_id": "RT-PR-EV-20261029-1225636931-S300806",
+  "current_status": "SUCCEEDED"
+}

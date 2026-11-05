@@ -1,0 +1,8 @@
+{
+  "task_id": "RT-PR-EV-20261029-1225636931-S300806",
+  "verdict": "修改后通过",
+  "comment": "扣非与归母差额已按公告数修正表述",
+  "reviewer": "张研",
+  "idempotency_key": "RT-PR-EV-20261029-1225636931-S300806:v2",
+  "revised_content": "---\ntask_id: RT-PR-EV-20261029-1225636931-S300806\n...（修改稿全文，升 version=2 落 artifacts）..."
+}

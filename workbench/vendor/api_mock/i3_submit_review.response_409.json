@@ -1,0 +1,7 @@
+{
+  "ok": false,
+  "error": "conflict",
+  "message": "任务当前状态为 FAILED，不可审核（需 WAITING_REVIEW）",
+  "task_id": "RT-PR-EV-20261029-1225636931-S300806",
+  "current_status": "FAILED"
+}

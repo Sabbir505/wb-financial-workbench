@@ -1,0 +1,27 @@
+{
+  "object_id": "S300806",
+  "period": "2026Q4",
+  "unit": "亿元（比率为 %）",
+  "source": "公告摘录确定性计算（icg.research.compute_metrics）",
+  "as_of": "2026-11-02T07:12:33",
+  "metrics": {
+    "revenue": 24.83,
+    "net_profit": 0.669378,
+    "net_profit_deducted": 0.504206,
+    "ocf": -0.74839,
+    "yoy_first": 10.9,
+    "pct_change_event": 47.86,
+    "net_margin_pct": 2.7,
+    "deducted_lte": true
+  },
+  "_field_notes": {
+    "revenue": "营业收入（亿元）",
+    "net_profit": "归母净利润（亿元）",
+    "net_profit_deducted": "扣非净利润（亿元）",
+    "ocf": "经营活动现金流量净额（亿元）",
+    "yoy_first": "同比增速（%，摘要首项·通常为营收）",
+    "pct_change_event": "事件主幅度（%，抽取器判定）",
+    "net_margin_pct": "净利率（%）",
+    "deducted_lte": "勾稽校验：扣非≤归母"
+  }
+}

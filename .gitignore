@@ -1,0 +1,9 @@
+# Rust build artifacts (4 GB of them)
+workbench/target/
+
+# Logs
+*.log
+
+# OS noise
+Thumbs.db
+Desktop.ini

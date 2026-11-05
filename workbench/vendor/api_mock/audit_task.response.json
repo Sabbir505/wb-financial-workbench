@@ -1,0 +1,12 @@
+{
+  "task_id": "RT-PR-EV-20261029-1225636931-S300806",
+  "status": "WAITING_REVIEW",
+  "history": [
+    {"at": "2026-10-31T22:14:10", "to": "RECEIVED", "note": "任务创建"},
+    {"at": "2026-11-02T07:12:33", "from": "RECEIVED", "to": "TASK_CREATED", "note": "进入上下文构建"},
+    {"at": "2026-11-02T07:12:33", "from": "TASK_CREATED", "to": "CONTEXT_READY", "note": "上下文固化（证据 1 条）"},
+    {"at": "2026-11-02T07:12:34", "from": "CONTEXT_READY", "to": "RUNNING", "note": "工作流执行"},
+    {"at": "2026-11-02T07:17:03", "from": "RUNNING", "to": "WAITING_REVIEW", "note": "简报生成，数字校验通过"}
+  ],
+  "audit_chain": {"ok": true, "length": 1}
+}

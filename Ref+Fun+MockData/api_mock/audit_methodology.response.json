@@ -1,0 +1,14 @@
+{
+  "task_id": "RT-PR-EV-20261029-1225636931-S300806",
+  "workflow_version": "wf-earnings-v1.0",
+  "data_cutoff": "2026-11-02T07:12:33",
+  "source_version": "icg-store@2026-10-31T22:25:45",
+  "pipeline": [
+    "输入检查（公告/公司/可计算数字齐全性）",
+    "确定性指标计算 compute_metrics（公告摘要正则抽取，亿元归一）",
+    "模型分析（kimi-k3，三段式：经营变化/风险点/待核实问题）",
+    "简报生成（事实/计算/推断/校验 四节）",
+    "独立数字校验（推断节数字必须命中证据数字，容差 1%）"
+  ],
+  "validation": {"tolerance_pct": 1.0, "pp_tolerance": 0.02, "checked_at": "2026-11-02T07:17:03"}
+}

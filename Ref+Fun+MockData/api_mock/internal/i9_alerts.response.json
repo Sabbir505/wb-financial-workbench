@@ -1,0 +1,18 @@
+[
+  {
+    "kind": "checklist",
+    "title": "触发线告警 · 观察清单第 6 条 → 证伪",
+    "detail": "清单状态迁移：⏳ → ❌（同业动作：洁美科技 2026-10-26 公告投建年产 4 万吨光学级 BOPET 膜及 7.68 亿平方米高端离型膜项目，命中证伪条件『同业进入 BOPET/离型膜产能』）",
+    "evidence": "kb_sdic/observations/2026Q4_checklist.md",
+    "emitted_at": "2026-11-02T07:21:15",
+    "source_file": "output/alerts/20261102_072115_checklist.md"
+  },
+  {
+    "kind": "pledge_watch",
+    "title": "触发线告警 · 斯迪克控股股东质押观察",
+    "detail": "斯迪克：关于控股股东部分股份质押的公告（金闯质押 339 万股，占其所持 1.72%，占总股本 0.53%，用途为投资/置换存量债务/个人消费）",
+    "evidence": "http://static.cninfo.com.cn/finalpage/2026-10-16/1225608139.PDF",
+    "emitted_at": "2026-10-16T07:12:40",
+    "source_file": "output/alerts/20261016_071240_pledge_watch.md"
+  }
+]

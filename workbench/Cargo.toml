@@ -1,0 +1,19 @@
+[workspace]
+resolver = "2"
+members = ["crates/wb-core", "crates/wb-mock", "crates/wb-app", "crates/wb-e2e"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ureq = { version = "2", features = ["json"] }
+tiny_http = "0.12"
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "2"
+regex = "1"
+
+[profile.dev]
+debug = 1
