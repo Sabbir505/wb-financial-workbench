@@ -1,0 +1,16 @@
+{
+ "object_id": "S001378",
+ "period": "2026Q4",
+ "unit": "亿元（比率为 %）",
+ "source": "公告摘录确定性计算（icg.research.compute_metrics）",
+ "as_of": "2026-11-01T10:26:40",
+ "metrics": {
+  "revenue": 5.05,
+  "net_profit": 0.16764500000000002,
+  "net_profit_deducted": 0.721008,
+  "yoy_first": 36.87,
+  "pct_change_event": 30.6,
+  "net_margin_pct": 3.32,
+  "deducted_lte": false
+ }
+}

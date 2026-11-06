@@ -1,9 +1,10 @@
 # WB 接口模拟测试数据包（api_mock）
 
 用途：WB 侧开发与测试**不依赖真实服务**即可联调——每个接口的请求/响应样例均取自
-KG-Palantir 真实运行样本（斯迪克 2026Q3 案例主线）。
+KG-Palantir 真实运行样本（斯迪克 2026Q3 案例主线 + 锚点池八家公司 + 全状态覆盖）。
 形态对齐原始 `financial_workbench_api_list`（非必要不新增接口）。
 配套文档：`Ref/WB功能与接口清单-final.md`（终版清单）。
+**合规：打包/公开前必跑 `python check_privacy.py`（零命中才可发布，详见 `PRIVACY.md`）。**
 
 ## 目录（按原始 API 清单分组）
 
@@ -17,8 +18,9 @@ KG-Palantir 真实运行样本（斯迪克 2026Q3 案例主线）。
 | `financial_reports.yongguan_failed.json` | 同上 | 永冠新材 Q3（数字校验失败案例，-61%） |
 | `financial_reports.luxshare_failed.json` | 同上 | 立讯精密 Q3（失败案例） |
 | `financial_reports.pledge_sdic.json` | 同上 | **非业绩类样本**：斯迪克控股股东质押公告（news 类） |
+| `financial_reports.{deguan,jizhi,shuangxing,luxshare_v2}.json` | 同上 | 德冠/激智/双星/立讯 样本（扩库第二批） |
 | `financial_indicators.response.json` | `GET /financial/indicators/{symbol}?period=` | 斯迪克 Q3 指标（原 I4 metrics，8012 已运行） |
-| `financial_indicators.{fenghua,jiemei,yongguan_failed,luxshare_failed}.json` | 同上 | 四家公司的确定性计算指标 |
+| `financial_indicators.{fenghua,jiemei,yongguan_failed,luxshare_failed,deguan,jizhi,shuangxing,luxshare_v2}.json` | 同上 | 八家公司的确定性计算指标 |
 | — | `/market/*` | 不启用（市场/股价面） |
 
 ### AI Analysis and Prediction APIs
@@ -29,6 +31,9 @@ KG-Palantir 真实运行样本（斯迪克 2026Q3 案例主线）。
 | `analysis_task.jiemei.json` | 同上 | 洁美科技任务（WAITING_REVIEW） |
 | `analysis_task.yongguan_failed.json` | 同上 | 永冠新材任务（FAILED，含真实违例 0.246） |
 | `analysis_task.luxshare_failed.json` | 同上 | 立讯精密任务（FAILED） |
+| `analysis_task.{deguan,jizhi,shuangxing,luxshare_v2}.json` | 同上 | 德冠/激智/双星/立讯 任务（WAITING_REVIEW，扩库第二批） |
+| `analysis_task.waiting_data.json` | 同上 | **WAITING_DATA 状态样本**（上下文缺数，无简报） |
+| `analysis_task.ignored.json` | 同上 | **IGNORED 状态样本**（例行事件被忽略，无简报） |
 | `analysis_history.response.json` | `GET /analysis/history` | 队列摘要（三状态样本） |
 | `analysis_explanation.response.json` | `GET /analysis/{id}/explanation` | 推断节 + 数字校验通过样例 |
 | `analysis_explanation.{yongguan_failed,luxshare_failed}.json` | 同上 | 校验未通过样例（真实 violations） |

@@ -156,6 +156,20 @@ pub struct Strings {
     pub toast_degraded_render: &'static str,
     pub queue_unavailable: &'static str,
     pub queue_empty: &'static str,
+
+    // 菜单栏（Windows 风格下拉菜单）
+    pub menu_file: &'static str,
+    pub menu_edit: &'static str,
+    pub menu_view: &'static str,
+    pub menu_help: &'static str,
+    pub mi_quit: &'static str,
+    pub mi_cut: &'static str,
+    pub mi_copy: &'static str,
+    pub mi_paste: &'static str,
+    pub mi_select_all: &'static str,
+    pub mi_language: &'static str,
+    pub mi_about: &'static str,
+    pub about_text: &'static str,
 }
 
 pub const ZH: Strings = Strings {
@@ -272,6 +286,19 @@ pub const ZH: Strings = Strings {
     toast_degraded_render: "研究服务不可用，已从简报库渲染（",
     queue_unavailable: "队列不可用：显示为空而非误判为“无待审”。可稍后刷新。",
     queue_empty: "没有符合条件的任务。",
+
+    menu_file: "文件",
+    menu_edit: "编辑",
+    menu_view: "视图",
+    menu_help: "帮助",
+    mi_quit: "退出",
+    mi_cut: "剪切",
+    mi_copy: "复制",
+    mi_paste: "粘贴",
+    mi_select_all: "全选",
+    mi_language: "界面语言：中 / EN",
+    mi_about: "关于",
+    about_text: "WB 财报审核工作台 v0.1 · KG-Palantir 契约 v3 · 本地桌面端",
 };
 
 pub const EN: Strings = Strings {
@@ -388,6 +415,19 @@ pub const EN: Strings = Strings {
     toast_degraded_render: "Research service unavailable — rendered from the vault (",
     queue_unavailable: "Queue unavailable: showing empty rather than a false “nothing pending”. Refresh later.",
     queue_empty: "No tasks match the current filter.",
+
+    menu_file: "File",
+    menu_edit: "Edit",
+    menu_view: "View",
+    menu_help: "Help",
+    mi_quit: "Quit",
+    mi_cut: "Cut",
+    mi_copy: "Copy",
+    mi_paste: "Paste",
+    mi_select_all: "Select All",
+    mi_language: "Language: 中文 / EN",
+    mi_about: "About",
+    about_text: "WB Financial Review Workbench v0.1 · KG-Palantir contract v3 · local desktop",
 };
 
 pub fn strings(lang: Lang) -> &'static Strings {

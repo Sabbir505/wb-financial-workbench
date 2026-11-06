@@ -1,37 +1,36 @@
 //! WB design system v3 — principles applied from research:
 //! • Fluent 2: 4px spacing grid, semantic type ramp (Caption 11 / Body 13 / Subtitle 15 / Title 18)
-//! • Dark-mode hierarchy: containers darker than the content inside them; clear surface steps
+//! • Light-mode hierarchy: white surfaces with subtle gray steps; clear surface steps
 //! • Color restraint: one interactive accent; status is a *dot + tinted text*, never a filled block
 //! • Hairline borders only for structure and inputs; lists are transparent rows with hover lift
-//! • Zed-like surface layering on neutral dark tones (no pure black)
 
 use gpui::{div, px, Hsla, ParentElement, SharedString, Styled};
 
-// ---------------------------------------------------------------- surfaces
-pub const BG: u32 = 0x14161a; // window base
-pub const SURFACE: u32 = 0x1a1d24; // topbar / sidebar / panels
-pub const RAISED: u32 = 0x22262e; // inputs, cards, modal, quadrant cells
-pub const RAISED_HOVER: u32 = 0x2a2f38; // hover on raised / list rows
-pub const HAIRLINE: u32 = 0x262b33; // structural 1px dividers
+// ---------------------------------------------------------------- surfaces（浅色）
+pub const BG: u32 = 0xffffff; // window base（纯白）
+pub const SURFACE: u32 = 0xffffff; // topbar / sidebar / panels
+pub const RAISED: u32 = 0xeff2f6; // inputs, cards, modal, quadrant cells
+pub const RAISED_HOVER: u32 = 0xe2e8f0; // hover on raised / list rows
+pub const HAIRLINE: u32 = 0xe3e8ef; // structural 1px dividers
 
-// ---------------------------------------------------------------- text
-pub const FG: u32 = 0xe2e6ec; // primary
-pub const FG2: u32 = 0x9aa3b2; // secondary
-pub const FG3: u32 = 0x6b7482; // tertiary / meta
+// ---------------------------------------------------------------- text（浅色底上的深色文字）
+pub const FG: u32 = 0x1a1d24; // primary
+pub const FG2: u32 = 0x55606e; // secondary
+pub const FG3: u32 = 0x8a94a3; // tertiary / meta
 
 // ---------------------------------------------------------------- accent (interactive only)
-pub const ACCENT: u32 = 0x6ea8fe;
-pub const ACCENT_DIM: u32 = 0x27354a; // accent at ~15% on dark
+pub const ACCENT: u32 = 0x154f8b;
+pub const ACCENT_DIM: u32 = 0xe3edfb; // accent tint on light
 
-// ---------------------------------------------------------------- status hues
-pub const GREEN: u32 = 0x5fc98e;
-pub const AMBER: u32 = 0xe0b05c;
-pub const RED: u32 = 0xe5767e;
+// ---------------------------------------------------------------- status hues（白底可读版）
+pub const GREEN: u32 = 0x1e7e34;
+pub const AMBER: u32 = 0x8a6d00;
+pub const RED: u32 = 0xb71c1c;
 
 // ---------------------------------------------------------------- tints (sparing use)
-pub const RED_TINT: u32 = 0x2c1f22;
-pub const GREEN_TINT: u32 = 0x1a271f;
-pub const AMBER_TINT: u32 = 0x2a2519;
+pub const RED_TINT: u32 = 0xfbe9e9;
+pub const GREEN_TINT: u32 = 0xe6f4ea;
+pub const AMBER_TINT: u32 = 0xfdf6e3;
 
 pub fn c(hex: u32) -> Hsla {
     gpui::rgb(hex).into()

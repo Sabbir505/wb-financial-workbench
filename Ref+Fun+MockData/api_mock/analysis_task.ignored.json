@@ -1,0 +1,42 @@
+{
+ "task_id": "RT-PR-EV-20261016-1225608139-S300806",
+ "trace_id": "PR-EV-20261016-1225608139-S300806",
+ "object_id": "S300806",
+ "period": "2026Q4",
+ "status": "IGNORED",
+ "created_at": "2026-10-31T22:14:07",
+ "updated_at": "2026-11-01T10:26:40",
+ "history": [
+  {
+   "at": "2026-10-31T22:14:07",
+   "to": "RECEIVED",
+   "note": "任务创建"
+  },
+  {
+   "at": "2026-11-01T10:18:50",
+   "from": "RECEIVED",
+   "to": "TASK_CREATED",
+   "note": "进入上下文构建"
+  },
+  {
+   "at": "2026-11-01T10:18:50",
+   "from": "TASK_CREATED",
+   "to": "CONTEXT_READY",
+   "note": "上下文固化（证据 1 条）"
+  },
+  {
+   "at": "2026-11-01T10:18:51",
+   "from": "CONTEXT_READY",
+   "to": "FAILED",
+   "note": "输入不完整：无日期或无可计算数字"
+  },
+  {
+   "at": "2026-11-01T10:26:40",
+   "from": "FAILED",
+   "to": "IGNORED",
+   "note": "非财报事件（风险，补判）"
+  }
+ ],
+ "sections": null,
+ "_comment": "该状态无简报产物：WAITING_DATA=上下文缺数；IGNORED=例行/非目标事件被忽略"
+}

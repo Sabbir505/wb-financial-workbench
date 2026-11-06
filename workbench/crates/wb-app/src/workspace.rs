@@ -5,7 +5,7 @@
 use crate::i18n::{self, Lang};
 use crate::input::TextInput;
 use crate::theme::{sid, *};
-use gpui::{div, prelude::*, px, ClickEvent, Context, Entity, Hsla, Window};
+use gpui::{div, prelude::*, px, App, ClickEvent, Context, Entity, Hsla, MouseButton, MouseDownEvent, Window};
 use std::sync::mpsc::Receiver;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -125,6 +125,14 @@ pub struct Workspace {
     /// Collapsed process-timeline accordion on the detail page.
     pub show_history: bool,
 
+    /// 任务行右键菜单：Some((task_id, status, 点击位置))；Esc/点他处/选动作后关闭。
+    pub ctx_menu_task: Option<(String, String, gpui::Point<gpui::Pixels>)>,
+    /// 右键菜单"通过/驳回"的两段式动作：先 open_task 加载详情，完成后自动开审核弹窗。
+    pub pending_verdict: Option<(String, wb_core::model::Verdict)>,
+    /// 菜单栏当前展开项（"file"/"edit"/"view"/"help"）与下拉锚定 x（点击位置）。
+    pub open_menu: Option<&'static str>,
+    pub menu_anchor_x: gpui::Pixels,
+
     pub webhook_rx: Option<Receiver<WebhookEvent>>,
     pub webhook_port: u16,
     pub service_ok: Option<bool>,
@@ -196,6 +204,10 @@ impl Workspace {
             show_shortcuts: false,
             show_meta: false,
             show_history: false,
+            ctx_menu_task: None,
+            pending_verdict: None,
+            open_menu: None,
+            menu_anchor_x: px(0.0),
             webhook_rx: Some(rx),
             webhook_port,
             service_ok: None,
@@ -412,6 +424,12 @@ impl Workspace {
                         d.brief_version.get_or_insert(1);
                         ws.detail = Some(d);
                         ws.detail_error = None;
+                        // 右键菜单"通过/驳回"两段式：详情就绪后自动开审核弹窗
+                        if let Some((vtid, verdict)) = ws.pending_verdict.take() {
+                            if vtid == tid {
+                                ws.open_review(verdict, cx);
+                            }
+                        }
                     }
                     Err(e) => {
                         // Degraded fallback: build the detail from the vault brief (I2).
@@ -915,7 +933,13 @@ impl Workspace {
             .font_family(FONT_UI)
             .on_action(cx.listener(|ws, _: &RefreshQueue, _w, cx| ws.reload_queue(cx)))
             .on_action(cx.listener(|ws, _: &GoBack, _w, cx| {
-                if ws.show_shortcuts {
+                if ws.open_menu.is_some() {
+                    // Esc 优先关闭菜单栏下拉
+                    ws.open_menu = None;
+                } else if ws.ctx_menu_task.is_some() {
+                    // 其次关闭右键菜单，不触发返回
+                    ws.ctx_menu_task = None;
+                } else if ws.show_shortcuts {
                     ws.show_shortcuts = false;
                 } else if ws.review.is_some() {
                     ws.review = None;
@@ -956,7 +980,15 @@ impl Workspace {
                 ws.view = ViewKind::AuditTrail;
                 cx.notify();
             }))
+            // 左键点击任意空白处关闭展开的菜单栏下拉（菜单项/菜单栏自身均 stop_propagation）
+            .on_mouse_down(MouseButton::Left, cx.listener(|ws, _ev, _w, cx| {
+                if ws.open_menu.is_some() {
+                    ws.open_menu = None;
+                    cx.notify();
+                }
+            }))
             .child(self.render_topbar(window, cx))
+            .child(self.render_menubar(cx))
             .when(!self.toasts.is_empty(), |el| {
                 el.child(self.render_toasts(window))
             })
@@ -969,6 +1001,257 @@ impl Workspace {
                     .child(self.render_sidebar(cx))
                     .child(main_pane),
             )
+            .when(self.ctx_menu_task.is_some(), |el| {
+                el.child(self.render_task_ctx_menu(cx))
+            })
+            .when(self.open_menu.is_some(), |el| {
+                el.child(self.render_app_menu(window, cx))
+            })
+    }
+
+    /// 任务行右键菜单（deferred 浮层，锚定右键点击位置；Esc/点他处/选动作后关闭）。
+    fn render_task_ctx_menu(&mut self, cx: &mut Context<Self>) -> gpui::Deferred {
+        let (mtid, mstatus, p) = self.ctx_menu_task.clone().unwrap();
+        let can_review = mstatus == "WAITING_REVIEW";
+        let mk = move |label: &'static str, enabled: bool, act: &'static str, tid: String, cx: &mut Context<Self>| {
+            let mut d = div().px_3().py_1().text_size(px(12.0)).child(label);
+            if enabled {
+                d = d
+                    .text_color(c(FG))
+                    .cursor_pointer()
+                    .hover(|s| s.bg(c(ACCENT_DIM)))
+                    .on_mouse_down(MouseButton::Left, cx.listener(move |ws, _ev, _w, cx| {
+                        ws.ctx_menu_task = None;
+                        match act {
+                            "open" => ws.open_task(&tid, cx),
+                            "approve" => {
+                                ws.pending_verdict = Some((tid.clone(), Verdict::Approve));
+                                ws.open_task(&tid, cx);
+                            }
+                            "reject" => {
+                                ws.pending_verdict = Some((tid.clone(), Verdict::Reject));
+                                ws.open_task(&tid, cx);
+                            }
+                            "copy" => {
+                                cx.write_to_clipboard(gpui::ClipboardItem::new_string(tid.clone()));
+                                ws.push_toast("任务 ID 已复制".to_string(), ToastKind::Info, cx);
+                            }
+                            _ => {}
+                        }
+                        cx.notify();
+                        cx.stop_propagation();
+                    }));
+            } else {
+                d = d.text_color(c(DIM));
+            }
+            d
+        };
+        gpui::deferred(
+            div()
+                .absolute()
+                .left(p.x)
+                .top(p.y)
+                .flex()
+                .flex_col()
+                .min_w(px(140.0))
+                .bg(c(SURFACE))
+                .border_1()
+                .border_color(c(BORDER))
+                .rounded_md()
+                .shadow_lg()
+                .child(mk("打开详情", true, "open", mtid.clone(), cx))
+                .child(mk("通过", can_review, "approve", mtid.clone(), cx))
+                .child(mk("驳回", can_review, "reject", mtid.clone(), cx))
+                .child(mk("复制任务 ID", true, "copy", mtid.clone(), cx))
+                .child(mk("取消", true, "cancel", mtid.clone(), cx)),
+        )
+    }
+
+    // ------------------------------------------------------------- 菜单栏（Windows 风格）
+
+    /// 当前聚焦的文本输入框（编辑菜单的转发目标）。
+    fn focused_input(&self, window: &Window, cx: &App) -> Option<Entity<TextInput>> {
+        let mut cands: Vec<Entity<TextInput>> =
+            vec![self.company_input.clone(), self.search_input.clone()];
+        if let Some(r) = &self.review {
+            cands.push(r.comment.clone());
+            if let Some(e) = &r.editor {
+                cands.push(e.clone());
+            }
+        }
+        cands.into_iter().find(|e| e.read(cx).focus.is_focused(window))
+    }
+
+    fn menu_forward_paste(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(input) = self.focused_input(window, cx) {
+            input.update(cx, |i, cx| i.menu_paste(window, cx));
+        }
+    }
+
+    fn menu_forward_cut_copy(&mut self, cut: bool, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(input) = self.focused_input(window, cx) {
+            input.update(cx, |i, cx| i.menu_cut_copy(cut, window, cx));
+        }
+    }
+
+    fn menu_forward_select_all(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(input) = self.focused_input(window, cx) {
+            input.update(cx, |i, cx| i.select_all(cx));
+        }
+    }
+
+    /// 菜单栏（顶栏下方）：文件/编辑/视图/帮助；点击展开，悬停切换，Esc/点他处关闭。
+    fn render_menubar(&mut self, cx: &mut Context<Self>) -> gpui::Div {
+        let ts = i18n::strings(self.lang);
+        let mk = |label: &'static str, kind: &'static str, cx: &mut Context<Self>| {
+            let open = self.open_menu == Some(kind);
+            div()
+                .id(sid(format!("menu-{kind}")))
+                .px_3()
+                .h_full()
+                .flex()
+                .items_center()
+                .text_size(px(12.0))
+                .text_color(if open { c(ACCENT) } else { c(FG2) })
+                .when(open, |el| el.bg(c(ACCENT_DIM)))
+                .hover(|s| s.bg(c(ACCENT_DIM)))
+                .cursor_pointer()
+                .on_mouse_down(MouseButton::Left, cx.listener(move |ws, ev: &MouseDownEvent, _w, cx| {
+                    if ws.open_menu == Some(kind) {
+                        ws.open_menu = None;
+                    } else {
+                        ws.open_menu = Some(kind);
+                        ws.menu_anchor_x = ev.position.x;
+                    }
+                    cx.notify();
+                    cx.stop_propagation();
+                }))
+                .on_hover({
+                    // 菜单已展开时悬停切换（Windows 行为）；on_hover 是纯闭包，
+                    // 经实体句柄回写状态
+                    let entity = cx.entity();
+                    move |hovered: &bool, _w, app: &mut App| {
+                        if *hovered {
+                            entity.update(app, |ws, cx| {
+                                if ws.open_menu.is_some() && ws.open_menu != Some(kind) {
+                                    ws.open_menu = Some(kind);
+                                    cx.notify();
+                                }
+                            });
+                        }
+                    }
+                })
+                .child(label)
+        };
+        div()
+            .flex()
+            .flex_row()
+            .items_center()
+            .h(px(28.0))
+            .px_2()
+            .bg(c(SURFACE))
+            .border_b_1()
+            .border_color(c(HAIRLINE))
+            .child(mk(ts.menu_file, "file", cx))
+            .child(mk(ts.menu_edit, "edit", cx))
+            .child(mk(ts.menu_view, "view", cx))
+            .child(mk(ts.menu_help, "help", cx))
+    }
+
+    fn menu_action_row(
+        &self,
+        label: &'static str,
+        enabled: bool,
+        act: &'static str,
+        cx: &mut Context<Self>,
+    ) -> gpui::Div {
+        let mut d = div().px_3().py_1().text_size(px(12.0)).child(label);
+        if enabled {
+            d = d
+                .text_color(c(FG))
+                .cursor_pointer()
+                .hover(|s| s.bg(c(ACCENT_DIM)))
+                .on_mouse_down(MouseButton::Left, cx.listener(move |ws, _ev, window, cx| {
+                    ws.open_menu = None;
+                    match act {
+                        "refresh" => ws.reload_queue(cx),
+                        "export" => ws.export_audit(cx),
+                        "quit" => cx.quit(),
+                        "cut" => ws.menu_forward_cut_copy(true, window, cx),
+                        "copy" => ws.menu_forward_cut_copy(false, window, cx),
+                        "paste" => ws.menu_forward_paste(window, cx),
+                        "selall" => ws.menu_forward_select_all(window, cx),
+                        "v-inbox" => ws.view = ViewKind::Inbox,
+                        "v-library" => ws.view = ViewKind::Library,
+                        "v-quadrant" => ws.view = ViewKind::Quadrant,
+                        "v-audit" => ws.view = ViewKind::AuditTrail,
+                        "lang" => ws.toggle_language(cx),
+                        "shortcuts" => ws.show_shortcuts = true,
+                        "about" => {
+                            let ts = i18n::strings(ws.lang);
+                            ws.push_toast(ts.about_text.to_string(), ToastKind::Info, cx);
+                        }
+                        _ => {}
+                    }
+                    cx.notify();
+                    cx.stop_propagation();
+                }));
+        } else {
+            d = d.text_color(c(DIM));
+        }
+        d
+    }
+
+    /// 菜单栏下拉（deferred 浮层，锚定菜单栏下缘 y=44+28=72px）。
+    fn render_app_menu(&mut self, window: &mut Window, cx: &mut Context<Self>) -> gpui::Deferred {
+        let ts = i18n::strings(self.lang);
+        let kind = self.open_menu.unwrap();
+        let x = self.menu_anchor_x;
+        // 编辑菜单的启停状态依赖当前聚焦输入框
+        let focused = self.focused_input(window, cx);
+        let focused_has_sel = focused
+            .as_ref()
+            .map(|e| e.read(cx).has_selection())
+            .unwrap_or(false);
+        let can_edit = focused.is_some();
+        let items: Vec<(&'static str, bool, &'static str)> = match kind {
+            "file" => vec![
+                (ts.refresh_queue, true, "refresh"),
+                (ts.audit_export, true, "export"),
+                (ts.mi_quit, true, "quit"),
+            ],
+            "edit" => vec![
+                (ts.mi_cut, focused_has_sel, "cut"),
+                (ts.mi_copy, focused_has_sel, "copy"),
+                (ts.mi_paste, can_edit, "paste"),
+                (ts.mi_select_all, can_edit, "selall"),
+            ],
+            "view" => vec![
+                (ts.nav_inbox, true, "v-inbox"),
+                (ts.nav_library, true, "v-library"),
+                (ts.nav_quadrant, true, "v-quadrant"),
+                (ts.nav_audit, true, "v-audit"),
+                (ts.mi_language, true, "lang"),
+                (ts.shortcuts_title, true, "shortcuts"),
+            ],
+            _ => vec![(ts.mi_about, true, "about")],
+        };
+        let mut menu = div()
+            .absolute()
+            .left(x)
+            .top(px(72.0))
+            .flex()
+            .flex_col()
+            .min_w(px(170.0))
+            .bg(c(SURFACE))
+            .border_1()
+            .border_color(c(BORDER))
+            .rounded_md()
+            .shadow_lg();
+        for (label, enabled, act) in items {
+            menu = menu.child(self.menu_action_row(label, enabled, act, cx));
+        }
+        gpui::deferred(menu)
     }
 
     /// 44px top bar: identity left, connection + language + refresh right.
@@ -1570,10 +1853,19 @@ impl Workspace {
                             .child(tid.clone()),
                     )
                 });
+            let tid_rc = tid.clone();
+            let status_rc = t.status.clone();
             list = list.child(
-                row.on_click(cx.listener(move |ws, _e: &ClickEvent, _w, cx| {
-                    ws.open_task(&tid, cx);
-                })),
+                row.on_mouse_down(MouseButton::Right, cx.listener(move |ws, ev: &MouseDownEvent, _w, cx| {
+                        // 任务行右键：展开操作菜单（打开详情/通过/驳回/复制任务ID）
+                        ws.ctx_menu_task = Some((tid_rc.clone(), status_rc.clone(), ev.position));
+                        cx.notify();
+                        cx.stop_propagation();
+                    }))
+                    .on_click(cx.listener(move |ws, _e: &ClickEvent, _w, cx| {
+                        ws.ctx_menu_task = None;
+                        ws.open_task(&tid, cx);
+                    })),
             );
         }
         pane = pane.child(list);
