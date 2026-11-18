@@ -4,7 +4,10 @@
 //! • Color restraint: one interactive accent; status is a *dot + tinted text*, never a filled block
 //! • Hairline borders only for structure and inputs; lists are transparent rows with hover lift
 
-use gpui::{div, px, Hsla, ParentElement, SharedString, Styled};
+use gpui::{
+    div, px, Animation, AnimationExt as _, Hsla, IntoElement, ParentElement, SharedString, Styled,
+};
+use std::time::Duration;
 
 // ---------------------------------------------------------------- surfaces（浅色）
 pub const BG: u32 = 0xffffff; // window base（纯白）
@@ -19,8 +22,10 @@ pub const FG2: u32 = 0x55606e; // secondary
 pub const FG3: u32 = 0x8a94a3; // tertiary / meta
 
 // ---------------------------------------------------------------- accent (interactive only)
-pub const ACCENT: u32 = 0x154f8b;
-pub const ACCENT_DIM: u32 = 0xe3edfb; // accent tint on light
+// Light-theme accent: blue-600 — vivid enough for primary actions on white,
+// AA-contrast with white text; tint is blue-100 for hovers/selected chips.
+pub const ACCENT: u32 = 0x2563eb;
+pub const ACCENT_DIM: u32 = 0xdbeafe; // accent tint on light
 
 // ---------------------------------------------------------------- status hues（白底可读版）
 pub const GREEN: u32 = 0x1e7e34;
@@ -133,6 +138,24 @@ pub const CYAN: u32 = ACCENT;
 /// `ElementId` accepts SharedString but not String; keeps `.id()` chains terse.
 pub fn sid(s: String) -> SharedString {
     s.into()
+}
+
+/// Animated braille spinner (`⠋⠙⠹…`) driven by gpui's animation delta —
+/// shown while the engine probe, model discovery or model load runs.
+pub fn spinner(color: Hsla, size: f32) -> impl IntoElement {
+    const FRAMES: [&str; 10] = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+    div()
+        .font_family(FONT_MONO)
+        .text_size(px(size))
+        .text_color(color)
+        .with_animation(
+            "spinner",
+            Animation::new(Duration::from_millis(1000)).repeat(),
+            move |el, delta| {
+                let i = (delta * FRAMES.len() as f32) as usize % FRAMES.len();
+                el.child(FRAMES[i].to_string())
+            },
+        )
 }
 
 // ---------------------------------------------------------------- compat aliases

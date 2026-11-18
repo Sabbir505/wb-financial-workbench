@@ -147,8 +147,12 @@ impl Workspace {
                 .pt_2()
                 .child(self.section_fact(&sections.fact.0))
                 .child(self.section_calculation(sections))
+                .child(self.section_structural(cx))
+                .child(self.section_provenance())
+                .child(self.section_summary())
                 .child(self.section_inference(&sections.inference, &self.guardrail, cx))
-                .child(self.section_check(&sections.check)),
+                .child(self.section_check(&sections.check))
+                .child(self.section_duplicates()),
         );
 
         // F11 evidence drill-down: inline section, toggled by the button.
@@ -303,6 +307,7 @@ impl Workspace {
             ws.evidence = None;
             ws.methodology = None;
             ws.guardrail = None;
+            ws.structural = None;
             ws.show_evidence = false;
             ws.hovered_violation = None;
             ws.detail_expanded = false;
@@ -310,7 +315,7 @@ impl Workspace {
         });
 
         // Grows to fill everything right of the list (grow-last arrangement).
-        let mut panel = div()
+        let panel = div()
             .flex()
             .flex_col()
             .flex_1()
@@ -454,8 +459,12 @@ impl Workspace {
                 .pt_1()
                 .child(self.section_fact(&sections.fact.0))
                 .child(self.section_calculation(sections))
+                .child(self.section_structural(cx))
+                .child(self.section_provenance())
+                .child(self.section_summary())
                 .child(self.section_inference(&sections.inference, &self.guardrail, cx))
-                .child(self.section_check(&sections.check)),
+                .child(self.section_check(&sections.check))
+                .child(self.section_duplicates()),
         );
 
         // Evidence drill-down and state history live in the full page.
@@ -861,6 +870,272 @@ impl Workspace {
         self.guardrail
             .as_ref()
             .and_then(|g| g.violations.iter().position(|v| v.start == start))
+    }
+
+    /// Structural accounting checks (F4 layer 2): dot + per-rule rows, quiet
+    /// unless something is actually inconsistent.
+    fn section_structural(&self, _cx: &mut Context<Self>) -> gpui::Div {
+        let ts = i18n::strings(self.lang);
+        let Some(report) = &self.structural else {
+            return div();
+        };
+        if report.checked.is_empty() {
+            return div(); // no rule was applicable — stay out of the way
+        }
+        let mut sec = self.section_frame(ts.struct_section, c(ACCENT));
+        sec = sec.child(
+            div()
+                .text_size(px(11.0))
+                .text_color(c(FG3))
+                .child(ts.struct_hint),
+        );
+        let (dot, fg) = if report.ok() {
+            (c(GREEN), c(GREEN))
+        } else {
+            (c(RED), c(RED))
+        };
+        let headline = if report.ok() {
+            ts.struct_ok.replacen("{}", &report.checked.len().to_string(), 1)
+        } else {
+            ts.struct_fail.replacen("{}", &report.violations.len().to_string(), 1)
+        };
+        sec = sec.child(
+            div()
+                .flex()
+                .flex_row()
+                .items_center()
+                .gap_1p5()
+                .py_0p5()
+                .child(div().w(px(6.0)).h(px(6.0)).rounded_full().bg(dot))
+                .child(
+                    div()
+                        .text_size(px(T12))
+                        .text_color(fg)
+                        .child(headline),
+                ),
+        );
+        for v in &report.violations {
+            sec = sec.child(
+                div()
+                    .px_2()
+                    .py_1()
+                    .rounded_sm()
+                    .bg(c(RED_BG))
+                    .text_size(px(12.0))
+                    .text_color(c(RED))
+                    .child(v.detail.clone()),
+            );
+        }
+        sec
+    }
+
+    // ------------------------------------------------- provenance (advisory)
+
+    /// F4 layer 3: every number with the source sentence behind it.
+    ///
+    /// Advisory by construction — it renders the same span set the guardrail
+    /// produced, so it can explain a red mark but never clear one. A traced
+    /// number shows where it came from; an untraced number shows that there is
+    /// nowhere to look.
+    fn section_provenance(&self) -> gpui::Div {
+        let ts = i18n::strings(self.lang);
+        if self.citations.is_empty() {
+            return div();
+        }
+        let untraced = wb_core::provenance::untraced(&self.citations).len();
+        let dot = if untraced == 0 { c(GREEN) } else { c(RED) };
+        let mut sec = self.section_frame(ts.prov_section, dot);
+        sec = sec.child(
+            div()
+                .text_size(px(11.0))
+                .text_color(c(FG3))
+                .child(ts.prov_hint),
+        );
+        for cit in &self.citations {
+            let (badge, fg, body) = match &cit.source {
+                None => (ts.prov_untraced, c(RED), String::new()),
+                Some(src) => {
+                    let kind = match src.kind {
+                        wb_core::provenance::SourceKind::Metric => ts.prov_from_metric,
+                        wb_core::provenance::SourceKind::Calc => ts.prov_from_calc,
+                        wb_core::provenance::SourceKind::Excerpt => ts.prov_from_excerpt,
+                    };
+                    let body = if src.quote.is_empty() {
+                        format!("{} · {} = {}", kind, src.key, fmt_num(src.evidence))
+                    } else {
+                        format!("{} · {} · {}", kind, src.key, src.quote)
+                    };
+                    (ts.prov_traced, c(GREEN), body)
+                }
+            };
+            let mut row = div()
+                .flex()
+                .flex_row()
+                .items_start()
+                .gap_2()
+                .py_0p5()
+                .child(
+                    div()
+                        .w(px(64.0))
+                        .flex_shrink_0()
+                        .text_size(px(T12))
+                        .text_color(fg)
+                        .child(cit.raw.clone()),
+                )
+                .child(
+                    div()
+                        .flex_1()
+                        .min_w_0()
+                        .text_size(px(11.0))
+                        .text_color(c(DIM))
+                        .child(format!("{badge}: {body}")),
+                );
+            if cit.source.is_none() {
+                row = row.bg(c(RED_BG)).px_1().rounded_sm();
+            }
+            sec = sec.child(row);
+        }
+        sec
+    }
+
+    // ------------------------------------------- duplicates / restatements
+
+    /// Other briefs on the same event, and whether their figures agree.
+    fn section_duplicates(&self) -> gpui::Div {
+        let ts = i18n::strings(self.lang);
+        let mut sec = self.section_frame(
+            ts.dup_section,
+            if self.duplicates.iter().any(|d| d.conflicts()) {
+                c(RED)
+            } else if self.duplicates.is_empty() {
+                c(FG3)
+            } else {
+                c(AMBER)
+            },
+        );
+        sec = sec.child(
+            div()
+                .text_size(px(11.0))
+                .text_color(c(FG3))
+                .child(ts.dup_hint),
+        );
+        if self.duplicates.is_empty() {
+            return sec.child(
+                div()
+                    .text_size(px(T12))
+                    .text_color(c(DIM))
+                    .child(ts.dup_none),
+            );
+        }
+        for d in &self.duplicates {
+            let conflicts = d.conflicts();
+            let mut row = div()
+                .flex()
+                .flex_col()
+                .gap_0p5()
+                .py_1()
+                .child(
+                    div()
+                        .flex()
+                        .flex_row()
+                        .items_center()
+                        .gap_2()
+                        .child(
+                            div()
+                                .text_size(px(T12))
+                                .text_color(c(FG))
+                                .child(format!("{} · {}", d.other_object_id, d.other_period)),
+                        )
+                        .child(
+                            div()
+                                .text_size(px(11.0))
+                                .text_color(if conflicts { c(RED) } else { c(FG3) })
+                                .child(if conflicts {
+                                    ts.dup_conflict
+                                } else {
+                                    ts.dup_agree
+                                }),
+                        ),
+                )
+                .child(
+                    div()
+                        .text_size(px(11.0))
+                        .text_color(c(DIM))
+                        .child(format!(
+                            "{} · {}",
+                            wb_core::duplicate::describe(d),
+                            d.other_task_id
+                        )),
+                );
+            if conflicts {
+                row = row.bg(c(RED_BG)).px_1().rounded_sm();
+            }
+            sec = sec.child(row);
+        }
+        sec
+    }
+
+    // ------------------------------------------------- pre-review summary
+
+    /// What changed since the preserved v1 draft.
+    fn section_summary(&self) -> gpui::Div {
+        let ts = i18n::strings(self.lang);
+        let Some(sum) = &self.presage else {
+            return div();
+        };
+        let dot = match sum.verdict_change {
+            Some((false, true)) => c(GREEN),
+            Some((true, false)) => c(RED),
+            _ if sum.touches_numbers() => c(AMBER),
+            _ => c(FG3),
+        };
+        let mut sec = self.section_frame(ts.sum_section, dot);
+        sec = sec.child(
+            div()
+                .text_size(px(11.0))
+                .text_color(c(FG3))
+                .child(ts.sum_hint),
+        );
+        if sum.is_trivial() {
+            return sec.child(
+                div()
+                    .text_size(px(T12))
+                    .text_color(c(DIM))
+                    .child(ts.sum_trivial),
+            );
+        }
+        if let Some((_, after)) = sum.verdict_change {
+            let (label, fg) = if after {
+                (ts.sum_verdict_fixed, c(GREEN))
+            } else {
+                (ts.sum_verdict_regressed, c(RED))
+            };
+            sec = sec.child(div().text_size(px(T12)).text_color(fg).child(label));
+        }
+        if !sum.calc_deltas.is_empty() {
+            let mut body = String::new();
+            for d in &sum.calc_deltas {
+                let before = d.before.map(fmt_num).unwrap_or_else(|| "—".into());
+                let after = d.after.map(fmt_num).unwrap_or_else(|| "—".into());
+                body.push_str(&format!("{}{}: {} → {}\n", ts.sum_figures, d.key, before, after));
+            }
+            sec = sec.child(
+                div()
+                    .text_size(px(11.0))
+                    .text_color(c(FG2))
+                    .child(body.trim_end().to_string()),
+            );
+        }
+        if !sum.new_numbers.is_empty() {
+            let vals: Vec<String> = sum.new_numbers.iter().map(|n| n.raw.clone()).collect();
+            sec = sec.child(
+                div()
+                    .text_size(px(11.0))
+                    .text_color(c(AMBER))
+                    .child(format!("{}{}", ts.sum_new_numbers, vals.join(", "))),
+            );
+        }
+        sec
     }
 
     fn section_check(&self, check: &str) -> gpui::Div {
@@ -1317,7 +1592,7 @@ impl Workspace {
         });
 
         // Grows to fill everything right of the list.
-        let mut panel = div()
+        let panel = div()
             .flex()
             .flex_col()
             .flex_1()
@@ -1454,4 +1729,11 @@ fn fmt_value(v: &serde_json::Value) -> String {
         serde_json::Value::String(s) => s.clone(),
         other => other.to_string(),
     }
+}
+
+/// Evidence values for display: the guardrail trims to 1e-6, so an untrimmed
+/// float would print 0.6693780000000001 next to a number the reviewer is
+/// checking by eye.
+fn fmt_num(v: f64) -> String {
+    wb_core::guardrail::trim_float(v).to_string()
 }

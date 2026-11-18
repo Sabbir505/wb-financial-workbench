@@ -46,6 +46,13 @@ async fn wait_for(
 }
 
 pub async fn drive_review_loop(handle: WindowHandle<Workspace>, cx: &mut AsyncApp) {
+    // 0. Snapshot the audit log. It is append-only by design, so a second run
+    // legitimately adds a record; asserting an absolute count would make this
+    // driver single-use. Everything below is checked as a delta.
+    let audit_before = handle
+        .update(cx, |ws, _w, _| ws.audit.list().len())
+        .expect("audit snapshot");
+
     // 1. Queue loads from the research service.
     wait_for(&handle, cx, "queue loaded", |ws| {
         !ws.queue.is_empty() && ws.service_ok == Some(true)
@@ -73,6 +80,48 @@ pub async fn drive_review_loop(handle: WindowHandle<Workspace>, cx: &mut AsyncAp
             assert!(ws.vault.read_brief(SDIC).is_some(), "brief in vault");
         })
         .expect("assert detail");
+
+    // 2b. The three advisory signals are computed on the same open, and they
+    // agree with the guardrail: exactly the flagged number is untraced.
+    handle
+        .update(cx, |ws, _w, _| {
+            assert!(
+                !ws.citations.is_empty(),
+                "provenance populated for the open brief"
+            );
+            let untraced: Vec<&str> = wb_core::provenance::untraced(&ws.citations)
+                .iter()
+                .map(|c| c.raw.as_str())
+                .collect();
+            assert_eq!(
+                untraced,
+                vec!["1652"],
+                "provenance must name the same number the guardrail flagged"
+            );
+            // At least one traced number carries an announcement sentence
+            // behind it. The inference quotes growth rates, not the revenue
+            // total (24.83 lives in FACT), so assert on the shape rather than
+            // on a specific figure.
+            let quoted: Vec<&str> = ws
+                .citations
+                .iter()
+                .filter_map(|c| c.source.as_ref())
+                .filter(|s| !s.quote.is_empty())
+                .map(|s| s.quote.as_str())
+                .collect();
+            assert!(
+                quoted.iter().any(|q| q.contains("元")),
+                "a traced number should quote the announcement, got {quoted:?}"
+            );
+            // Duplicate detection ran (the vault holds several briefs).
+            // 斯迪克 is unique, so it must not report a false duplicate.
+            assert!(
+                ws.duplicates.iter().all(|d| d.other_object_id != "S300806"),
+                "no brief duplicates 斯迪克: {:?}",
+                ws.duplicates
+            );
+        })
+        .expect("assert advisory signals");
 
     // 3. Open the review modal with 修改后通过 (same handler as the button).
     handle
@@ -126,9 +175,14 @@ pub async fn drive_review_loop(handle: WindowHandle<Workspace>, cx: &mut AsyncAp
                 "v2 inference quotes the announcement numbers"
             );
             let records = ws.audit.list();
-            assert_eq!(records.len(), 1, "F7 audit trail recorded the review");
-            assert_eq!(records[0].verdict, "修改后通过");
-            assert!(records[0].revised);
+            assert_eq!(
+                records.len(),
+                audit_before + 1,
+                "F7 audit trail recorded exactly one new review"
+            );
+            let last = records.last().expect("a review record");
+            assert_eq!(last.verdict, "修改后通过");
+            assert!(last.revised);
             assert!(
                 !ws.queue
                     .iter()

@@ -198,10 +198,37 @@ fn load_state(cfg: &MockConfig) -> Result<State, String> {
         let expl = read_json(dir, "analysis_explanation.luxshare_failed.json")?;
         put(detail, "P3", expl, &mut tasks)?;
     }
+    // Terminal, sectionless samples (supervisor spec §2.4c replay scenarios):
+    // WAITING_DATA = context missing key data, IGNORED = routine/non-target event.
+    // Neither produces a brief, so `synthesize_evidence`/`synthesize_explanation`
+    // would fabricate one from empty sections — load them without a payload.
+    for (file, priority) in [
+        ("analysis_task.waiting_data.json", "P3"),
+        ("analysis_task.ignored.json", "P4"),
+    ] {
+        let detail: TaskDetail =
+            serde_json::from_value(read_json(dir, file)?).map_err(|e| e.to_string())?;
+        let tid = detail.task_id.clone();
+        let mut methodology = read_json(dir, "audit_methodology.response.json")?;
+        methodology["task_id"] = json!(tid.clone());
+        tasks.insert(
+            tid,
+            TaskRecord {
+                detail,
+                explanation: Value::Null,
+                evidence: Evidence::default(),
+                methodology,
+                priority,
+                revised_inference: None,
+            },
+        );
+    }
 
     // Normalize brief coordinates: every task points at its I2 vault file at v1.
     for rec in tasks.values_mut() {
         if rec.detail.object_name.is_empty() {
+            // Sectionless tasks (WAITING_DATA / IGNORED) have no fact line to
+            // derive a name from; fall through to the object id below.
             // Fixtures without object_name: derive from "永冠新材：上海永冠…" fact line.
             rec.detail.object_name = rec
                 .detail
@@ -213,6 +240,11 @@ fn load_state(cfg: &MockConfig) -> Result<State, String> {
                 .unwrap_or(&rec.detail.object_id)
                 .to_string();
         }
+        if !has_brief(rec) {
+            // No brief artifact exists for this state: leave brief_path None and
+            // the version unset rather than pointing at a file that cannot exist.
+            continue;
+        }
         let ym = rec.detail.created_at.get(..7).unwrap_or("1970-01");
         rec.detail.brief_path = Some(format!("research/{ym}/{}.md", rec.detail.task_id));
         rec.detail.brief_version.get_or_insert(1);
@@ -222,6 +254,11 @@ fn load_state(cfg: &MockConfig) -> Result<State, String> {
     let vault = Vault::new(&cfg.vault_root);
     let sdic_brief = std::fs::read_to_string(dir.join("i2_brief_sample.md")).unwrap_or_default();
     for (tid, rec) in &tasks {
+        if !has_brief(rec) {
+            // WAITING_DATA / IGNORED carry `sections: null`: seeding a brief
+            // would manufacture an artifact the real service never produced.
+            continue;
+        }
         let path = vault.find_brief_path(tid);
         if path.is_some() {
             continue;
@@ -299,6 +336,13 @@ fn fm_status(status: &str) -> String {
         _ => "进行中",
     }
     .to_string()
+}
+
+/// Whether this task produced a brief artifact. WAITING_DATA and IGNORED stop
+/// before generation (`sections: null` in the fixtures), so they must not get a
+/// seeded vault file, a `brief_path`, or a brief version.
+fn has_brief(rec: &TaskRecord) -> bool {
+    !rec.detail.sections.inference.trim().is_empty()
 }
 
 fn render_task_brief(rec: &TaskRecord) -> String {
@@ -851,7 +895,15 @@ fn submit_review(state: &Arc<Mutex<State>>, args: &Value) -> Result<Value, Value
                                 "{}.v{old_version}.md",
                                 path.file_stem().and_then(|st| st.to_str()).unwrap_or(&tid)
                             ));
-                            let _ = std::fs::write(&backup, &original);
+                            // Never clobber a preserved version. Service state
+                            // resets to WAITING_REVIEW on restart while the vault
+                            // keeps the revised file, so a second revise would
+                            // otherwise back up already-revised text over the
+                            // original draft — silently destroying the v1 that F6
+                            // exists to preserve.
+                            if !backup.exists() {
+                                let _ = std::fs::write(&backup, &original);
+                            }
                             if let Ok(brief) = wb_core::vault::parse_brief(&path) {
                                 let mut fm = brief.frontmatter.clone();
                                 fm.status = "已通过".into();

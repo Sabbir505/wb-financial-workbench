@@ -25,6 +25,16 @@ pub struct AuditRecord {
     pub review_id: String,
     pub status_after: String,
     pub trace_id: String,
+    /// Guardrail violation tokens (e.g. ["1652"]) observed at review time.
+    /// Empty for records written before this field existed.
+    #[serde(default)]
+    pub guardrail_tokens: Vec<String>,
+    /// The INFERENCE draft the reviewer saw (v1), for error-taxonomy analytics.
+    #[serde(default)]
+    pub original_inference: Option<String>,
+    /// The revised INFERENCE the reviewer submitted (修改后通过 only).
+    #[serde(default)]
+    pub revised_inference: Option<String>,
 }
 
 pub struct AuditLog {
@@ -71,6 +81,22 @@ impl AuditLog {
         period: &str,
         receipt: &ReviewReceipt,
     ) -> std::io::Result<AuditRecord> {
+        self.record_review_ex(req, object_name, period, receipt, &[], None, None)
+    }
+
+    /// Same, but also captures the review-assist context for analytics:
+    /// guardrail tokens shown to the reviewer, the original draft and (for
+    /// 修改后通过) the submitted revision.
+    pub fn record_review_ex(
+        &self,
+        req: &ReviewRequest,
+        object_name: &str,
+        period: &str,
+        receipt: &ReviewReceipt,
+        guardrail_tokens: &[String],
+        original_inference: Option<String>,
+        revised_inference: Option<String>,
+    ) -> std::io::Result<AuditRecord> {
         let record = AuditRecord {
             ts: chrono::Local::now().format("%Y-%m-%dT%H:%M:%S").to_string(),
             task_id: req.task_id.clone(),
@@ -84,6 +110,9 @@ impl AuditLog {
             review_id: receipt.review_id.clone(),
             status_after: receipt.status.clone(),
             trace_id: receipt.trace_id.clone().unwrap_or_default(),
+            guardrail_tokens: guardrail_tokens.to_vec(),
+            original_inference,
+            revised_inference,
         };
         self.append(&record)?;
         Ok(record)
@@ -119,6 +148,9 @@ mod tests {
             review_id: "RV-20261102-0001".into(),
             status_after: "SUCCEEDED".into(),
             trace_id: "PR-EV-1".into(),
+            guardrail_tokens: Vec::new(),
+            original_inference: None,
+            revised_inference: None,
         }
     }
 

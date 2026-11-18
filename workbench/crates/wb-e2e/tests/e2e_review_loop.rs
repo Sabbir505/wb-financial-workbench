@@ -11,8 +11,10 @@
 use std::sync::mpsc::Receiver;
 use std::time::Duration;
 
+use wb_core::analytics;
 use wb_core::audit::AuditLog;
 use wb_core::guardrail::{build_evidence_numbers, check as guardrail_check, EvidenceInputs};
+use wb_core::structural;
 use wb_core::model::{ReviewRequest, Verdict};
 use wb_core::research::{ApprovalPolicy, ResearchClient, ResearchError};
 use wb_core::state::{quadrant_of, TaskState};
@@ -116,7 +118,9 @@ fn system_queue_and_quadrant_contract() {
     assert!(status["research"]["waiting_review"].as_u64().unwrap() >= 4);
 
     let queue = fx.client.list_pending(None).expect("list_pending");
-    assert_eq!(queue.len(), 5, "5 fixture tasks: {queue:?}");
+    // 7 fixture tasks: 5 that reached a brief + 2 sectionless terminal states
+    // (WAITING_DATA, IGNORED) covering the replay scenarios in spec §2.4c.
+    assert_eq!(queue.len(), 7, "7 fixture tasks: {queue:?}");
     let waiting = fx.client.list_pending(Some("WAITING_REVIEW")).unwrap();
     assert_eq!(waiting.len(), 4);
     assert!(waiting.iter().all(|t| t.status == "WAITING_REVIEW"));
@@ -435,6 +439,73 @@ fn revise_flow_bumps_version_and_clears_violation() {
     assert!(records[0].revised);
 }
 
+/// The preserved draft must survive a second revise.
+///
+/// Service state resets to WAITING_REVIEW on restart while the vault keeps the
+/// revised file. A second approve-as-revised therefore starts from already-
+/// revised text; if the backup write is unconditional it overwrites the original
+/// `{task}.v1.md` and F6's central promise (the original draft is preserved)
+/// silently fails. This is not hypothetical — it happened while running the app
+/// selfcheck twice against a live mock.
+#[test]
+fn second_revise_does_not_clobber_the_preserved_original() {
+    let fx = setup();
+
+    let revised_inference = "经营变化：前三季营收19.31亿元（+10.29%），归母净利润0.31亿元（-61.27%），净利率1.62%。\n风险点：盈利大幅回落，扣非净利润0.07亿元，盈利质量承压。\n待核实问题：四季度订单与价格走势；产能利用率恢复情况。";
+
+    let backup = fx
+        .vault
+        .find_brief_path(REVISE_TARGET)
+        .expect("brief path")
+        .with_file_name(format!("{REVISE_TARGET}.v1.md"));
+
+    // First revise: writes v2, preserves v1 with the violation intact.
+    let req = ReviewRequest {
+        task_id: REVISE_TARGET.into(),
+        verdict: Verdict::ApproveAsRevised,
+        comment: Some("first".into()),
+        reviewer: "张研".into(),
+        idempotency_key: format!("{REVISE_TARGET}:first"),
+        revised_sections: Some(
+            [("inference", revised_inference)]
+                .iter()
+                .map(|(k, v)| (k.to_string(), v.to_string()))
+                .collect(),
+        ),
+    };
+    fx.client.submit_review(&req, true).expect("first revise");
+    let first = std::fs::read_to_string(&backup).expect("v1 preserved");
+    assert!(first.contains("2460"), "v1 holds the original violation");
+
+    // Reset service state only — the vault keeps the revised file. This is what
+    // a mock restart does.
+    let reset = format!("{}/__test/reset", fx.server.base_url);
+    assert_eq!(post_json(&reset, "{}"), 200);
+
+    // Second revise over the same preserved file.
+    let req2 = ReviewRequest {
+        task_id: REVISE_TARGET.into(),
+        verdict: Verdict::ApproveAsRevised,
+        comment: Some("second".into()),
+        reviewer: "张研".into(),
+        idempotency_key: format!("{REVISE_TARGET}:second"),
+        revised_sections: Some(
+            [("inference", revised_inference)]
+                .iter()
+                .map(|(k, v)| (k.to_string(), v.to_string()))
+                .collect(),
+        ),
+    };
+    let _ = fx.client.submit_review(&req2, true);
+
+    let second = std::fs::read_to_string(&backup).expect("v1 still present");
+    assert!(
+        second.contains("2460"),
+        "the preserved original must not be overwritten by revised text: {second}"
+    );
+    assert_eq!(first, second, "v1 is immutable once written");
+}
+
 #[test]
 fn conflict_on_failed_task_and_unknown_object_404() {
     let fx = setup();
@@ -477,6 +548,102 @@ fn conflict_on_failed_task_and_unknown_object_404() {
         fx.client.get_evidence("RT-DOES-NOT-EXIST"),
         Err(ResearchError::NotFound(_))
     ));
+}
+
+/// This session's additions, end-to-end over the real mock HTTP pipeline:
+/// F4 layer 2 (structural accounting checks), and F13 (the audit record now
+/// carries guardrail tokens + original/revised drafts, and analytics
+/// classifies the revision without any model in the loop).
+#[test]
+fn f13_f4_structural_and_analytics_pipeline() {
+    let fx = setup();
+
+    // --- F4 layer 2: structural checks over the task's own CALC values
+    let detail = fx.client.get_task(REVISE_TARGET).unwrap();
+    let report = structural::check(&detail.sections.calculation.0, &Default::default());
+    assert!(
+        !report.checked.is_empty(),
+        "the fixture's CALC section must trigger at least one rule"
+    );
+    assert!(
+        report.ok(),
+        "real fixture numbers must be coherent: {:?}",
+        report.violations
+    );
+
+    // --- F4 layer 1: guardrail flags the model-invented 差额
+    let g = app_guardrail(&fx.client, &fx.vault, REVISE_TARGET);
+    assert_eq!(g.violation_tokens(), vec!["2460"]);
+
+    // --- F13 write path: record_review_ex, exactly as workspace.submit_review
+    let original_inference = detail.sections.inference.clone();
+    let revised_inference = "经营变化：前三季营收19.31亿元（+10.29%），归母净利润0.31亿元（-61.27%），净利率1.62%。
+风险点：盈利大幅回落，扣非净利润0.07亿元，盈利质量承压。
+待核实问题：四季度订单与价格走势；产能利用率恢复情况。";
+    let req = ReviewRequest {
+        task_id: REVISE_TARGET.into(),
+        verdict: Verdict::ApproveAsRevised,
+        comment: Some("差额表述已按公告原始数字修正".into()),
+        reviewer: "张研".into(),
+        idempotency_key: format!("{REVISE_TARGET}:v1"),
+        revised_sections: Some(
+            [("inference", revised_inference)]
+                .iter()
+                .map(|(k, v)| (k.to_string(), v.to_string()))
+                .collect(),
+        ),
+    };
+    let receipt = fx.client.submit_review(&req, true).expect("submit revise");
+    assert_eq!(receipt.status, "SUCCEEDED");
+    fx.audit
+        .record_review_ex(
+            &req,
+            "永冠新材",
+            "2026Q4",
+            &receipt,
+            &g.violation_tokens(),
+            Some(original_inference.clone()),
+            Some(revised_inference.to_string()),
+        )
+        .expect("audit append");
+
+    // The audit record carries the review-assist context.
+    let records = fx.audit.list();
+    assert_eq!(records.len(), 1);
+    assert_eq!(records[0].guardrail_tokens, vec!["2460"]);
+    assert!(records[0]
+        .original_inference
+        .as_deref()
+        .unwrap_or_default()
+        .contains("2460"));
+    assert!(records[0]
+        .revised_inference
+        .as_deref()
+        .unwrap_or_default()
+        .contains("0.07"));
+    // Raw JSONL round-trips the new fields for future analytics.
+    let raw = std::fs::read_to_string(fx.audit.path()).unwrap();
+    assert!(raw.contains("\"guardrail_tokens\":[\"2460\"]"), "{raw}");
+    assert!(raw.contains("\"original_inference\""), "{raw}");
+
+    // --- F13 read path: deterministic taxonomy over the recorded revision
+    let summary = analytics::analyze(&records);
+    assert_eq!(summary.total_reviews, 1);
+    assert_eq!(summary.approves, 0);
+    assert_eq!(summary.revisions, 1);
+    assert!((summary.revision_rate - 1.0).abs() < 1e-9);
+    assert!((summary.first_pass_rate).abs() < 1e-9);
+    assert_eq!(summary.guardrail_flagged, 1);
+    assert_eq!(summary.guardrail_confirmed, 1);
+    assert_eq!(summary.top_tokens, vec![("2460".to_string(), 1)]);
+    let hallucinated = summary
+        .taxonomy
+        .iter()
+        .find(|(c, _)| *c == analytics::ErrorCategory::HallucinatedNumber)
+        .unwrap();
+    assert_eq!(hallucinated.1, 1, "2460 removed in revision → hallucinated-number");
+    assert_eq!(summary.per_company[0].company, "永冠新材");
+    assert_eq!(summary.per_company[0].reviews, 1);
 }
 
 #[test]

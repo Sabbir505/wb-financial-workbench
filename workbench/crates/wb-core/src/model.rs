@@ -172,6 +172,10 @@ pub struct TaskDetail {
     #[serde(default)]
     pub updated_at: String,
     #[serde(default)]
+    /// `null` is a legitimate wire value: a task that stopped before generation
+    /// (WAITING_DATA / IGNORED) has no brief sections. `#[serde(default)]` alone
+    /// covers only a *missing* key, not an explicit null.
+    #[serde(deserialize_with = "null_to_default")]
     pub sections: BriefSections,
     #[serde(default)]
     pub history: Vec<HistoryEntry>,
@@ -181,6 +185,17 @@ pub struct TaskDetail {
     pub brief_version: Option<u64>,
     #[serde(default)]
     pub fail_reason: Option<String>,
+}
+
+
+/// Deserialize an explicitly-`null` field as its default. Used where the wire
+/// contract permits null for a value the Rust type cannot represent as null.
+fn null_to_default<'de, D, T>(d: D) -> Result<T, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: Deserialize<'de> + Default,
+{
+    Ok(Option::<T>::deserialize(d)?.unwrap_or_default())
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]

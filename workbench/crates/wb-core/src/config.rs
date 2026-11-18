@@ -23,6 +23,16 @@ pub struct AppConfig {
     pub lang: String,
     /// Channel timeout in milliseconds
     pub timeout_ms: u64,
+    /// Local AI side-chat (F14): llama-server port and model directory.
+    #[serde(default = "default_chat_port")]
+    pub chat_port: u16,
+    /// Where downloaded GGUF models live (default: data_dir/models).
+    #[serde(default)]
+    pub models_dir: Option<PathBuf>,
+}
+
+fn default_chat_port() -> u16 {
+    8140
 }
 
 impl Default for AppConfig {
@@ -36,6 +46,8 @@ impl Default for AppConfig {
             reviewer: "张研".into(),
             lang: "zh".into(),
             timeout_ms: 8000,
+            chat_port: default_chat_port(),
+            models_dir: None,
         }
     }
 }
@@ -85,7 +97,19 @@ impl AppConfig {
         if let Ok(v) = std::env::var("WB_LANG") {
             cfg.lang = v;
         }
+        if let Ok(v) = std::env::var("WB_CHAT_PORT") {
+            if let Ok(p) = v.parse() {
+                cfg.chat_port = p;
+            }
+        }
         cfg
+    }
+
+    /// Model directory for the AI side-chat (data_dir/models by default).
+    pub fn models_dir_or_default(&self) -> PathBuf {
+        self.models_dir
+            .clone()
+            .unwrap_or_else(|| self.data_dir.join("models"))
     }
 
     /// Best-effort persist (cwd wb.config.json) so UI choices survive restarts.

@@ -7,3 +7,7 @@ workbench/target/
 # OS noise
 Thumbs.db
 Desktop.ini
+
+# Delivery archives (regenerate, do not version)
+FinancialWB_V1.0.zip
+*.zip

@@ -140,6 +140,25 @@ impl Vault {
         parse_brief(&path).ok()
     }
 
+    /// Read a preserved version by file name, e.g. `{task_id}.v1.md`.
+    ///
+    /// F6 keeps the original draft beside the revised one, so `read_brief`
+    /// (which looks for `{task_id}.md`) deliberately cannot see it. This is the
+    /// only accessor for a superseded version, and it never falls back to the
+    /// current one — a caller asking for v1 must not silently receive v2.
+    pub fn read_brief_at(&self, file_name: &str) -> Option<Brief> {
+        if !file_name.ends_with(".md") || file_name.contains('/') || file_name.contains('\\') {
+            return None;
+        }
+        let mut found = None;
+        walk_md(&self.root, &mut |p| {
+            if found.is_none() && p.file_name().map(|f| f == file_name).unwrap_or(false) {
+                found = Some(p.to_path_buf());
+            }
+        });
+        parse_brief(&found?).ok()
+    }
+
     /// All briefs under the vault, newest first by frontmatter created_at.
     pub fn list_briefs(&self) -> Vec<Brief> {
         let mut out = Vec::new();

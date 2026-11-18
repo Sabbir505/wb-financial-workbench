@@ -5,6 +5,8 @@
   "data_dir": "wb-data",
   "webhook_port": 8898,
   "reviewer": "张研",
-  "lang": "zh",
-  "timeout_ms": 8000
+  "lang": "en",
+  "timeout_ms": 8000,
+  "chat_port": 8140,
+  "models_dir": "wb-data/models"
 }

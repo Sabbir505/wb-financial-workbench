@@ -10,9 +10,9 @@ number in model text must trace back to evidence numbers.
 
 | Crate | What it is |
 |---|---|
-| `crates/wb-core` | Pure logic library: contract-v3 models, I2 vault parser (13 frontmatter fields + FACT/CALCULATION/INFERENCE/CHECK), F4 numeric guardrail, F6 line diff, F7 local audit trail, F8 MCP client (I3 tools/call + I4/I6 read APIs, structured 404/409/503/400 errors, approval policy), I1 webhook listener (idempotent) |
+| `crates/wb-core` | Pure logic library: contract-v3 models, I2 vault parser (13 frontmatter fields + FACT/CALCULATION/INFERENCE/CHECK), F4 numeric guardrail, F6 line diff, F7 local audit trail, F8 MCP client (I3 tools/call + I4/I6 read APIs, structured 404/409/503/400 errors, approval policy), I1 webhook listener (idempotent), F13 review analytics + model-error taxonomy, structural accounting checks (F4 layer 2) |
 | `crates/wb-mock` | Stand-in KG-Palantir research service serving the vendored real-run fixtures (`vendor/api_mock`) with live state transitions: WAITING_REVIEW → SUCCEEDED/CANCELLED, 409 conflicts, idempotent replay, 修改后通过 v2 writes into the vault |
-| `crates/wb-app` | The GPUI desktop app (Windows): review inbox, brief detail with guardrail red-flagging, review modal with live diff, brief library with full-text search, event quadrant, audit trail with JSON export, service-status/degraded display |
+| `crates/wb-app` | The GPUI desktop app (Windows): review inbox, brief detail with guardrail red-flagging, review modal with live diff, brief library with full-text search, event quadrant, audit trail with JSON export, review analytics view, structural-check display, AI side chat (local llama.cpp + 2–6B GGUF models), service-status/degraded display |
 | `crates/wb-e2e` | End-to-end suite: the full review loop over real HTTP (mock service + vault + webhook + guardrail + audit) |
 
 ## Run it
@@ -37,6 +37,65 @@ To exercise the I1 webhook path, start the mock with
 ```bash
 curl -X POST http://127.0.0.1:8012/__test/emit_webhook -d '{"task_id":"RT-PR-EV-20261029-1225636931-S300806"}'
 ```
+
+## AI side chat (F14) — local llama.cpp, nothing leaves the machine
+
+The right-side assistant panel (`Ctrl+L` or the topbar `AI 助手` button) runs a
+local llama.cpp engine with curated 2–6B GGUF models:
+
+1. **Engine probe, three layers** — (i) instant: `WB_LLAMA_SERVER`, PATH,
+   winget links, `data_dir/tools`; (ii) instant: known locations — winget's
+   package payload, `llama.cpp/build/bin[/Release]` source builds, LM Studio
+   backends, Downloads; (iii) a bounded full-machine sweep on a background
+   thread (user profile to depth 4 + every drive root, ~30s / 60k-dir budget,
+   `node_modules`/`.git`/`target` skipped) while the panel shows a live
+   scanning notice and the install options stay available.
+2. **Model catalog, picked for the job** — tiered against the detected
+   hardware (VRAM via `nvidia-smi`, RAM via PowerShell): green = fully in
+   VRAM, amber = partial offload. Ordered by fit for Chinese A-share
+   financial review, not by general leaderboard: XuanYuan-6B-Chat (度小满
+   中文金融模型, FinanceIQ leader — domain pick), Qwen3.5-4B (best general
+   <5B baseline, steadiest evidence quoting), LFM3-1.7B (Liquid AI's Oct-2026
+   tri-hybrid, official GGUF, instant load), Qwen3.5-2B, Nemotron 3.5 Bolt
+   E4B (NVIDIA edge multimodal; amber on 6GB), Phi-4-mini. Every GGUF
+   filename and size verified against the HuggingFace API. Downloads use the Windows-bundled
+   `curl.exe` into `data_dir/models` (`ureq` is deliberately built without
+   TLS — the research channel is localhost-only, downloads ride the OS).
+3. **Local-model discovery** — GGUFs already on the machine are listed under
+   本机已有模型 and start directly, no download: Ollama blobs (resolved
+   through `~/.ollama/models/manifests` to `name:tag`), LM Studio trees,
+   `wb-data/models`, Downloads, plus every `*.gguf` the full-machine sweep
+   crosses. Deduped by path; one click spawns `llama-server` on the file.
+   Every candidate must pass the real-model gates before it is listed: the
+   file must start with the four `GGUF` magic bytes, weigh ≥200MB, carry
+   no auxiliary name (`mmproj`/`imatrix`/`dflash`/`vocab`/`lora`/`adapter`),
+   not be a partial download, and shard families collapse to their first
+   `-00001-of-N` file (the only entry point llama-server needs).
+4. **Server** — spawned per model on `chat_port` (default 8140), health-polled,
+   killed on app quit.
+5. **Task-aware answers** — the open task's brief, CALC values, guardrail
+   violations and structural-check results are injected as the system prompt,
+   and the assistant is instructed to quote evidence numbers only. "Why is
+   1652 flagged?" answers with the actual evidence, not paraphrase.
+
+## Review analytics (F13) — the audit trail becomes a dataset
+
+The fifth view (`Ctrl+5`) computes, from the local JSONL audit log alone:
+
+- first-pass approval rate, revision rate, guardrail flag/confirm counts;
+- a **model-error taxonomy** classified deterministically from each
+  修改后通过 diff: 数据过期 (stale period/report tokens) → 编造数字 (a deleted
+  number matches the guardrail tokens) → 计算修正 (digit-only edit) →
+  表述修正 (wording-only);
+- per-company review stats and the recurring flagged numbers.
+
+## Structural checks (F4 layer 2) — accounting identities, zero hallucination
+
+Below CALCULATION the detail view re-computes derived indicators from the
+section's own numbers: `net_margin_pct ≈ net_profit/revenue×100`, YoY vs the
+prior-period levels, margins within [−100, 100], and the balance-sheet
+identity when the keys are present. Pure arithmetic on tool output — a flag
+here is a real inconsistency, never a model opinion.
 
 ## Verify (tests + self-check)
 

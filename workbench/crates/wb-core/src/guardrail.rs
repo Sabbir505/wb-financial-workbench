@@ -88,7 +88,7 @@ pub fn trim_float(v: f64) -> f64 {
 /// Numbers embedded in free text: ASCII digits with optional sign, thousands
 /// separators and decimals. Compiled once; used by both evidence collection
 /// and the check pass.
-fn number_regex() -> &'static Regex {
+pub(crate) fn number_regex() -> &'static Regex {
     static RE: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
     RE.get_or_init(|| Regex::new(r"[-+]?\d[\d,]*(?:\.\d+)?").unwrap())
 }
@@ -207,10 +207,23 @@ pub fn check(text: &str, evidence: &[f64], cfg: &GuardrailConfig) -> Guardrail {
     Guardrail { spans, violations }
 }
 
-fn within_tolerance(candidate: f64, evidence: f64, _is_pct: bool, cfg: &GuardrailConfig) -> bool {
+/// Two tolerance regimes (contract v3 §6 / supervisor spec §2.1):
+///
+/// - **percentages** (`47.86` = 47.86%): 1% relative, floored at `pp_tolerance`
+///   (0.02 percentage points) — the floor is what lets a rounded 2.7% match a
+///   reported 2.68%.
+/// - **amounts** (亿元): 1% relative only. The 0.02 absolute floor is NOT applied
+///   here: at 亿 scale it would legitimise any figure within 0.02 of an evidence
+///   value (2% of a 1.0亿 metric), which is wider than the relative band the
+///   contract specifies. Exact zeros still match exactly.
+pub(crate) fn within_tolerance(candidate: f64, evidence: f64, is_pct: bool, cfg: &GuardrailConfig) -> bool {
     let diff = (candidate - evidence).abs();
     let rel = evidence.abs() * cfg.tolerance_pct / 100.0;
-    diff <= rel.max(cfg.pp_tolerance)
+    if is_pct {
+        diff <= rel.max(cfg.pp_tolerance)
+    } else {
+        diff <= rel.max(f64::EPSILON * evidence.abs().max(1.0))
+    }
 }
 
 #[cfg(test)]
@@ -273,5 +286,21 @@ mod tests {
         assert!(within_tolerance(2.71, 2.7, true, &cfg)); // 0.01pp inside the pp floor
         assert!(!within_tolerance(2.75, 2.7, true, &cfg)); // 0.05pp outside
         assert!(!within_tolerance(-129.0, -127.02, true, &cfg)); // 1.56% off
+    }
+
+    /// The 0.02 absolute floor belongs to percentages only (contract v3 §6,
+    /// supervisor spec §2.1 "0.02pp for percentages"). On an amount it would
+    /// accept a figure 2% away from a 1.0亿 metric — wider than the 1% band.
+    #[test]
+    fn pp_floor_does_not_apply_to_amounts() {
+        let cfg = GuardrailConfig::default();
+        // Same numbers, different regimes.
+        assert!(within_tolerance(1.015, 1.0, true, &cfg)); // 0.015pp, floor saves it
+        assert!(!within_tolerance(1.015, 1.0, false, &cfg)); // 1.5% off an amount
+        // The relative band still governs amounts.
+        assert!(within_tolerance(1.005, 1.0, false, &cfg)); // 0.5% off
+        // An amount far below the floor is not legitimised by proximity to zero.
+        assert!(!within_tolerance(0.015, 0.0, false, &cfg));
+        assert!(within_tolerance(0.0, 0.0, false, &cfg)); // exact zero still matches
     }
 }

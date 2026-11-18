@@ -6224,6 +6224,8 @@ dependencies = [
  "gpui",
  "serde",
  "serde_json",
+ "tempfile",
+ "ureq",
  "wb-core",
 ]
 

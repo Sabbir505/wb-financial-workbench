@@ -8,11 +8,14 @@
 //! Config: wb.config.json next to the exe or CWD; env overrides
 //! WB_API_BASE / WB_MCP_URL / WB_VAULT / WB_DATA / WB_WEBHOOK_PORT / WB_REVIEWER.
 
+mod analytics_view;
+mod chat;
 mod detail;
 mod i18n;
 mod input;
 mod selfcheck;
 mod theme;
+mod triage;
 mod workspace;
 
 use gpui::{
@@ -28,6 +31,7 @@ fn view_arg(args: &[String]) -> Option<ViewKind> {
         Some("library") => Some(ViewKind::Library),
         Some("quadrant") => Some(ViewKind::Quadrant),
         Some("audit") => Some(ViewKind::AuditTrail),
+        Some("analytics") => Some(ViewKind::Analytics),
         _ => None,
     }
 }
@@ -47,6 +51,8 @@ fn main() {
             KeyBinding::new("ctrl-2", workspace::ShowLibrary, None),
             KeyBinding::new("ctrl-3", workspace::ShowQuadrant, None),
             KeyBinding::new("ctrl-4", workspace::ShowAudit, None),
+            KeyBinding::new("ctrl-5", workspace::ShowAnalytics, None),
+            KeyBinding::new("ctrl-l", workspace::ToggleChat, None),
         ]);
         let bounds = Bounds::centered(
             None,
