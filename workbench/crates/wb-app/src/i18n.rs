@@ -159,6 +159,7 @@ pub struct Strings {
     pub sec_check: &'static str,
     pub guard_ok: &'static str,
     pub guard_fail: &'static str,
+    pub guard_binding: &'static str,
 
     pub review_title: &'static str,
     pub comment_label: &'static str,
@@ -369,6 +370,7 @@ pub const ZH: Strings = Strings {
     sec_check: "校验 CHECK",
     guard_ok: "数字校验通过：推断节数字全部命中证据数字（容差 1%）",
     guard_fail: "数字校验未通过 {} 项：{}",
+    guard_binding: "绑定校验：{} 处数字可回溯，但口径/期间/单位与证据不一致（提示，不阻断）",
 
     review_title: "提交审核（F5/F6）",
     comment_label: "审核意见（可选）",
@@ -576,6 +578,7 @@ pub const EN: Strings = Strings {
     sec_check: "CHECK",
     guard_ok: "Numeric check passed: every number in INFERENCE traces to evidence (1% tolerance)",
     guard_fail: "Numeric check failed on {} value(s): {}",
+    guard_binding: "Binding check: {} value(s) trace to a different account, period, scope, or unit (advisory)",
 
     review_title: "Submit review (F5/F6)",
     comment_label: "Comment (optional)",

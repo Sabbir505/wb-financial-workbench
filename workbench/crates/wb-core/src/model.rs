@@ -242,6 +242,41 @@ pub struct ContextBundle {
     pub company: Company,
     #[serde(default)]
     pub metrics: CalcValues,
+    /// Unit of the amount metrics (`亿元`, `万元`, `元`). Empty means the
+    /// caller falls back to its own default.
+    #[serde(default)]
+    pub unit: String,
+}
+
+/// One structured fact in an evidence pack.
+///
+/// This is the bridge to the supervisor's ontology. The service owns the
+/// metric id, unit, period and scope; the workbench only checks them. All
+/// fields are optional on the wire so old packs keep parsing.
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct EvidenceFactDto {
+    #[serde(default)]
+    pub metric_id: String,
+    #[serde(default)]
+    pub metric_name: String,
+    /// For a growth rate, the metric whose growth it describes.
+    #[serde(default)]
+    pub base_metric_id: String,
+    #[serde(default)]
+    pub value: f64,
+    /// `亿元`, `万元`, `元`, `%`, `个百分点`, or empty.
+    #[serde(default)]
+    pub unit: String,
+    /// `2026Q3`, `2026M9`, `2026H1`, `2026FY`, or empty.
+    #[serde(default)]
+    pub period: String,
+    /// `consolidated`, `parent`, `deducted`, `total`, or empty.
+    #[serde(default)]
+    pub scope: String,
+    #[serde(default)]
+    pub locator: String,
+    #[serde(default)]
+    pub source: String,
 }
 
 /// Evidence pack (`GET /audit/{task_id}/evidence`).
@@ -256,6 +291,9 @@ pub struct Evidence {
     pub locator: String,
     #[serde(default)]
     pub fetched_at: String,
+    /// Optional structured facts. Empty for packs that only carry prose.
+    #[serde(default)]
+    pub facts: Vec<EvidenceFactDto>,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]

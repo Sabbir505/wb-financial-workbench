@@ -14,15 +14,14 @@
 //!
 //! ## Why the span set is not recomputed
 //!
-//! `cite` calls `guardrail::check` and resolves each span it returns, so the
-//! citation set is exactly the guardrail's span set by construction — a number
-//! can never be flagged by one and cited by the other. The evidence array fed
-//! to `check` is built by `evidence_sources`, which mirrors
-//! `guardrail::build_evidence_numbers`; `mirrors_guardrail_evidence` asserts the
-//! two produce the same values in the same order, so any future divergence is a
-//! test failure rather than a silent disagreement.
+//! `cite` calls `guardrail::check_with_facts` and resolves each span it
+//! returns, so the citation set is exactly the guardrail's span set by
+//! construction: a number can never be flagged by one and cited by the other.
+//! The fact set is built from the same labelled evidence, so the value and
+//! binding verdicts and the citations cannot drift apart.
 
-use crate::guardrail::{check, trim_float, GuardrailConfig};
+use crate::binding::{facts_from_metrics, facts_from_text, EvidenceFact, FactSource, Period};
+use crate::guardrail::{check_with_facts, trim_float, GuardrailConfig};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SourceKind {
@@ -88,6 +87,10 @@ pub struct LabelledEvidence {
     pub calc: Vec<(String, f64)>,
     /// Free-text evidence: `(label, text)` — announcement summary, audit excerpt.
     pub excerpts: Vec<(String, String)>,
+    /// Structured evidence-pack facts. These carry the unit, period and scope
+    /// that the prose sources cannot, so they must participate in both the
+    /// guardrail and the citation set.
+    pub dto: Vec<EvidenceFact>,
 }
 
 impl LabelledEvidence {
@@ -146,6 +149,24 @@ fn evidence_sources(ev: &LabelledEvidence) -> Vec<(f64, SourceDraft)> {
             SourceDraft {
                 kind: SourceKind::Calc,
                 key: key.clone(),
+                text: None,
+                offset: None,
+            },
+        );
+    }
+    for fact in &ev.dto {
+        push(
+            fact.native,
+            SourceDraft {
+                kind: match fact.source {
+                    FactSource::Calc => SourceKind::Calc,
+                    FactSource::Metric => SourceKind::Metric,
+                    FactSource::Excerpt | FactSource::Legacy => SourceKind::Excerpt,
+                },
+                key: fact
+                    .metric_id
+                    .clone()
+                    .unwrap_or_else(|| fact.label.clone()),
                 text: None,
                 offset: None,
             },
@@ -223,42 +244,90 @@ fn trim_bounds(text: &str, mut s: usize, mut e: usize) -> (usize, usize) {
     (s + lead, e - tail)
 }
 
+/// Build the fact set that mirrors `LabelledEvidence`. The unit is the fixtures'
+/// 亿元 convention; percentages are detected from the key name.
+fn labelled_facts(ev: &LabelledEvidence) -> Vec<EvidenceFact> {
+    let mut facts = Vec::new();
+    for (key, value) in &ev.metrics {
+        let mut one = std::collections::BTreeMap::new();
+        one.insert(key.clone(), serde_json::Value::from(*value));
+        facts.extend(facts_from_metrics(
+            &one,
+            "亿元",
+            Period::unknown(),
+            FactSource::Metric,
+        ));
+    }
+    for (key, value) in &ev.calc {
+        let mut one = std::collections::BTreeMap::new();
+        one.insert(key.clone(), serde_json::Value::from(*value));
+        facts.extend(facts_from_metrics(
+            &one,
+            "亿元",
+            Period::unknown(),
+            FactSource::Calc,
+        ));
+    }
+    for (label, text) in &ev.excerpts {
+        facts.extend(facts_from_text(
+            text,
+            Period::unknown(),
+            FactSource::Excerpt,
+            label,
+        ));
+    }
+    facts.extend(ev.dto.clone());
+    facts
+}
+
+fn same_number(a: f64, b: f64) -> bool {
+    (a - b).abs() <= 1e-9 * a.abs().max(b.abs()).max(1.0)
+}
+
 /// Resolve every number in `text` to its source, using exactly the span set the
-/// guardrail reports.
+/// guardrail reports. The guardrail is the unit-aware `check_with_facts`, so a
+/// unit-mismatched number is flagged and therefore has no citation.
 pub fn cite(text: &str, ev: &LabelledEvidence, cfg: &GuardrailConfig) -> Vec<Citation> {
     let sources = evidence_sources(ev);
-    let values: Vec<f64> = sources.iter().map(|(v, _)| *v).collect();
-    let g = check(text, &values, cfg);
+    let facts = labelled_facts(ev);
+    let g = check_with_facts(text, &facts, cfg);
 
     g.spans
         .iter()
-        .map(|span| {
-            let source = span.matched.and_then(|m| {
-                // Prefer a source we can quote. A number present in both a
-                // deterministic metric and the announcement excerpt resolves to
-                // the excerpt, because "营业收入24.83亿元" is what a reviewer can
-                // check, while "revenue" only restates the number.
-                let candidates = || sources.iter().filter(move |(v, _)| *v == m);
-                let (_, draft) = candidates()
-                    .clone()
-                    .find(|(_, d)| d.text.is_some())
-                    .or_else(|| candidates().next())?;
-                let (quote, quote_start, quote_end) = match (&draft.text, draft.offset) {
-                    (Some(t), Some((ns, ne))) => {
-                        let (s, e) = sentence_at(t, ns, ne);
-                        (t[s..e].to_string(), s, e)
-                    }
-                    _ => (String::new(), 0, 0),
-                };
-                Some(SourceRef {
-                    kind: draft.kind,
-                    key: draft.key.clone(),
-                    evidence: m,
-                    quote,
-                    quote_start,
-                    quote_end,
+        .zip(g.bindings.iter())
+        .map(|(span, binding)| {
+            let source = if span.ok {
+                binding.fact.as_ref().and_then(|fact| {
+                    // Prefer a source we can quote. A number present in both a
+                    // deterministic metric and the announcement excerpt resolves
+                    // to the excerpt, because "营业收入24.83亿元" is what a
+                    // reviewer can check, while "revenue" only restates the
+                    // number. Compare on the fact's native value: the sources
+                    // keep the value as written, not the normalised yuan value.
+                    let candidates =
+                        || sources.iter().filter(|(v, _)| same_number(*v, fact.native));
+                    let (value, draft) = candidates()
+                        .find(|(_, d)| d.text.is_some())
+                        .or_else(|| candidates().next())?;
+                    let (quote, quote_start, quote_end) = match (&draft.text, draft.offset) {
+                        (Some(t), Some((ns, ne))) => {
+                            let (s, e) = sentence_at(t, ns, ne);
+                            (t[s..e].to_string(), s, e)
+                        }
+                        _ => (String::new(), 0, 0),
+                    };
+                    Some(SourceRef {
+                        kind: draft.kind,
+                        key: draft.key.clone(),
+                        evidence: *value,
+                        quote,
+                        quote_start,
+                        quote_end,
+                    })
                 })
-            });
+            } else {
+                None
+            };
             Citation {
                 start: span.start,
                 end: span.end,
@@ -299,6 +368,7 @@ mod tests {
                  归母净利润6693.78万元，同比增长47.86%；扣非净利润5042.06万元，同比增长98.64%。"
                     .into(),
             )],
+            dto: Vec::new(),
         }
     }
 
@@ -344,6 +414,37 @@ mod tests {
         assert!(src.quote_start < src.quote_end);
     }
 
+    /// A fact that exists only in the structured pack (no prose source) must
+    /// still be cited. Otherwise the guardrail could pass a number that the
+    /// citation layer marks untraced, which is exactly the invariant this
+    /// module exists to protect.
+    #[test]
+    fn dto_only_fact_is_cited() {
+        use crate::binding::{AmountScale, Scope, Unit};
+        let ev = LabelledEvidence {
+            dto: vec![EvidenceFact {
+                metric_id: Some("revenue".into()),
+                base_metric_id: None,
+                value: 2_483_000_000.0,
+                native: 24.83,
+                unit: Unit::Amount,
+                scale: AmountScale::Yi,
+                period: Period::unknown(),
+                scope: Scope::Unknown,
+                source: FactSource::Excerpt,
+                label: "营业收入".into(),
+                locator: "PDF 第 2 页".into(),
+            }],
+            ..Default::default()
+        };
+        let cites = cite("营收24.83亿元。", &ev, &cfg());
+        let c = cites.iter().find(|c| c.raw == "24.83").expect("span");
+        let src = c.source.as_ref().expect("DTO fact must be cited");
+        assert_eq!(src.kind, SourceKind::Excerpt);
+        assert_eq!(src.key, "revenue");
+        assert!((src.evidence - 24.83).abs() < 1e-9);
+    }
+
     #[test]
     fn citation_set_equals_guardrail_violation_set() {
         // The invariant the module is built on: a number can never be cited by
@@ -351,7 +452,7 @@ mod tests {
         let text = "营收24.83亿元，净利率约2.7%，扣非低于归母约1652万元。";
         let ev = sdic();
         let cites = cite(text, &ev, &cfg());
-        let g = check(text, &ev.values(), &cfg());
+        let g = check_with_facts(text, &labelled_facts(&ev), &cfg());
         let mut flagged: Vec<&str> = g.violations.iter().map(|v| v.raw.as_str()).collect();
         let mut uncited: Vec<&str> = untraced(&cites).iter().map(|c| c.raw.as_str()).collect();
         flagged.sort();

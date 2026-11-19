@@ -143,8 +143,17 @@ fn load_state(cfg: &MockConfig) -> Result<State, String> {
         let tid = detail.task_id.clone();
         let evidence = if tid == "RT-PR-EV-20261029-1225636931-S300806" {
             // The main storyline ships a real evidence pack (raw-yuan excerpt).
-            serde_json::from_value(read_json(dir, "audit_evidence.response.json")?)
-                .unwrap_or_else(|_| synthesize_evidence(&detail))
+            let raw = read_json(dir, "audit_evidence.response.json")?;
+            match serde_json::from_value::<Evidence>(raw) {
+                Ok(e) => e,
+                Err(err) => {
+                    // A malformed pack must be visible; silently synthesizing
+                    // evidence would hide the same circularity the thesis is
+                    // trying to eliminate.
+                    eprintln!("mock evidence parse error: {err}");
+                    synthesize_evidence(&detail)
+                }
+            }
         } else {
             synthesize_evidence(&detail)
         };
@@ -380,6 +389,7 @@ fn synthesize_evidence(detail: &TaskDetail) -> Evidence {
         excerpt: parts.join("；"),
         locator: "PDF 第 2 页「一、主要财务数据（一）主要会计数据和财务指标」".into(),
         fetched_at: detail.created_at.clone(),
+        facts: Vec::new(),
     }
 }
 
@@ -771,6 +781,7 @@ fn build_context(rec: &TaskRecord) -> Value {
             "sector": "功能涂层材料（锚）"
         },
         "metrics": serde_json::to_value(&d.sections.calculation).unwrap(),
+        "unit": "亿元",
         "_comment": "ContextBundle 为固化快照：简报生成后不可变，任何复核/回放都还原同一份证据"
     })
 }

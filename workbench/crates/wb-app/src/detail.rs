@@ -7,6 +7,7 @@ use crate::workspace::{review_idempotency_key, Btn, Workspace};
 use gpui::{div, prelude::*, px, ClickEvent, Context, Hsla, Styled, Window};
 use wb_core::diff::{diff_lines, DiffOp};
 use wb_core::vault::SectionKind;
+use wb_core::binding::BindingVerdict;
 use wb_core::guardrail::{Guardrail, NumSpan};
 use wb_core::model::Verdict;
 
@@ -730,43 +731,67 @@ impl Workspace {
                                 .child(sep.to_string()),
                         );
                     }
-                    let idx = self.violation_index(v.start);
-                    line = if let Some(vi) = idx {
-                        line.child(
-                            div()
-                                .id(sid(format!("sum-{}", v.start)))
-                                .text_size(px(T12))
-                                .text_color(fg)
-                                .border_b_2()
-                                .border_color(fg)
-                                .child(v.raw.clone())
-                                .on_hover(cx.listener(
-                                    move |ws: &mut Workspace,
-                                          hov: &bool,
-                                          _w: &mut Window,
-                                          cx: &mut Context<Workspace>| {
-                                        ws.hovered_violation = if *hov {
-                                            Some(vi)
-                                        } else if ws.hovered_violation == Some(vi) {
-                                            None
-                                        } else {
-                                            ws.hovered_violation
-                                        };
-                                        cx.notify();
-                                    },
-                                )),
-                        )
-                    } else {
-                        line.child(
-                            div()
-                                .text_size(px(T12))
-                                .text_color(fg)
-                                .child(v.raw.clone()),
-                        )
-                    };
+                    let start = v.start;
+                    line = line.child(
+                        div()
+                            .id(sid(format!("sum-{}", start)))
+                            .text_size(px(T12))
+                            .text_color(fg)
+                            .border_b_2()
+                            .border_color(fg)
+                            .child(v.raw.clone())
+                            .on_hover(cx.listener(
+                                move |ws: &mut Workspace,
+                                      hov: &bool,
+                                      _w: &mut Window,
+                                      cx: &mut Context<Workspace>| {
+                                    ws.hovered_violation = if *hov {
+                                        Some(start)
+                                    } else if ws.hovered_violation == Some(start) {
+                                        None
+                                    } else {
+                                        ws.hovered_violation
+                                    };
+                                    cx.notify();
+                                },
+                            )),
+                    );
                 }
             }
             sec = sec.child(line);
+
+            // Binding is a second, advisory verdict. It never turns the red
+            // value line green or red; it is its own amber line.
+            let binding_mismatches = g.binding_mismatch_count();
+            if binding_mismatches > 0 {
+                let text = ts
+                    .guard_binding
+                    .replacen("{}", &binding_mismatches.to_string(), 1);
+                sec = sec.child(
+                    div()
+                        .flex()
+                        .flex_row()
+                        .flex_wrap()
+                        .items_center()
+                        .gap_1p5()
+                        .py_0p5()
+                        .child(
+                            div()
+                                .w(px(6.0))
+                                .h(px(6.0))
+                                .rounded_full()
+                                .bg(c(AMBER)),
+                        )
+                        .child(
+                            div()
+                                .flex_1()
+                                .min_w_0()
+                                .text_size(px(T12))
+                                .text_color(c(AMBER))
+                                .child(text),
+                        ),
+                );
+            }
         }
 
         let mut body = div()
@@ -803,13 +828,16 @@ impl Workspace {
                         row.child(div().child(line[pos - line_start..s - line_start].to_string()));
                 }
                 let raw = line[s - line_start..e - line_start].to_string();
-                if span.ok {
-                    row = row.child(div().text_color(c(CYAN)).child(raw));
-                } else {
-                    let idx = self.violation_index(span.start);
-                    let hovered = self.hovered_violation == idx;
+                let binding_mismatch = guardrail
+                    .as_ref()
+                    .and_then(|g| g.bindings.iter().find(|b| b.start == span.start))
+                    .map(|b| matches!(b.verdict, BindingVerdict::Mismatch { .. }))
+                    .unwrap_or(false);
+                if !span.ok {
+                    let start = span.start;
+                    let hovered = self.hovered_violation == Some(start);
                     let mut flagged = div()
-                        .id(sid(format!("vio-{}", span.start)))
+                        .id(sid(format!("vio-{}", start)))
                         .text_color(c(RED))
                         .border_b_2()
                         .border_color(c(RED))
@@ -820,8 +848,8 @@ impl Workspace {
                                   _w: &mut Window,
                                   cx: &mut Context<Workspace>| {
                                 ws.hovered_violation = if *hov {
-                                    idx
-                                } else if ws.hovered_violation == idx {
+                                    Some(start)
+                                } else if ws.hovered_violation == Some(start) {
                                     None
                                 } else {
                                     ws.hovered_violation
@@ -833,6 +861,36 @@ impl Workspace {
                         flagged = flagged.bg(c(RED_BG));
                     }
                     row = row.child(flagged);
+                } else if binding_mismatch {
+                    let start = span.start;
+                    let hovered = self.hovered_violation == Some(start);
+                    let mut flagged = div()
+                        .id(sid(format!("bind-{}", start)))
+                        .text_color(c(AMBER))
+                        .border_b_2()
+                        .border_color(c(AMBER))
+                        .child(raw)
+                        .on_hover(cx.listener(
+                            move |ws: &mut Workspace,
+                                  hov: &bool,
+                                  _w: &mut Window,
+                                  cx: &mut Context<Workspace>| {
+                                ws.hovered_violation = if *hov {
+                                    Some(start)
+                                } else if ws.hovered_violation == Some(start) {
+                                    None
+                                } else {
+                                    ws.hovered_violation
+                                };
+                                cx.notify();
+                            },
+                        ));
+                    if hovered {
+                        flagged = flagged.bg(c(AMBER_BG));
+                    }
+                    row = row.child(flagged);
+                } else {
+                    row = row.child(div().text_color(c(CYAN)).child(raw));
                 }
                 pos = e;
             }
@@ -861,15 +919,22 @@ impl Workspace {
                             Lang::Zh => v.hint.clone(),
                         }),
                 );
+            } else if let Some(b) = g.bindings.iter().find(|b| {
+                b.start == idx && matches!(b.verdict, BindingVerdict::Mismatch { .. })
+            }) {
+                sec = sec.child(
+                    div()
+                        .px_2()
+                        .py_1()
+                        .rounded_sm()
+                        .bg(c(AMBER_BG))
+                        .text_size(px(12.0))
+                        .text_color(c(AMBER))
+                        .child(b.hint.clone()),
+                );
             }
         }
         sec
-    }
-
-    fn violation_index(&self, start: usize) -> Option<usize> {
-        self.guardrail
-            .as_ref()
-            .and_then(|g| g.violations.iter().position(|v| v.start == start))
     }
 
     /// Structural accounting checks (F4 layer 2): dot + per-rule rows, quiet

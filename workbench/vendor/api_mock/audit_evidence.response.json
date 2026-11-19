@@ -3,5 +3,20 @@
   "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636931.PDF",
   "excerpt": "营业收入 2,482,691,849.55 元（同比 +10.90%）；归属于上市公司股东的净利润 66,937,816.48 元（同比 +47.86%）；归属于上市公司股东的扣除非经常性损益的净利润 50,420,578.11 元（同比 +98.64%）；经营活动产生的现金流量净额 -74,838,960.79 元（同比 -127.02%）。",
   "locator": "PDF 第 2 页「一、主要财务数据（一）主要会计数据和财务指标」",
-  "fetched_at": "2026-10-31T22:14:09"
+  "fetched_at": "2026-10-31T22:14:09",
+  "facts": [
+    {"metric_id": "revenue", "metric_name": "营业收入", "value": 24.83, "unit": "亿元", "period": "2026M9", "scope": "consolidated", "locator": "PDF 第 2 页"},
+    {"metric_id": "net_profit", "metric_name": "归母净利润", "value": 0.669378, "unit": "亿元", "period": "2026M9", "scope": "parent", "locator": "PDF 第 2 页"},
+    {"metric_id": "net_profit_deducted", "metric_name": "扣非净利润", "value": 0.504206, "unit": "亿元", "period": "2026M9", "scope": "deducted", "locator": "PDF 第 2 页"},
+    {"metric_id": "ocf", "metric_name": "经营活动现金流量净额", "value": -0.74839, "unit": "亿元", "period": "2026M9", "scope": "consolidated", "locator": "PDF 第 2 页"},
+    {"metric_id": "yoy_first", "metric_name": "营业收入同比增长", "base_metric_id": "revenue", "value": 10.90, "unit": "%", "period": "2026M9", "locator": "PDF 第 2 页"},
+    {"metric_id": "yoy_first", "metric_name": "归母净利润同比增长", "base_metric_id": "net_profit", "value": 47.86, "unit": "%", "period": "2026M9", "locator": "PDF 第 2 页"},
+    {"metric_id": "yoy_first", "metric_name": "扣非净利润同比增长", "base_metric_id": "net_profit_deducted", "value": 98.64, "unit": "%", "period": "2026M9", "locator": "PDF 第 2 页"},
+    {"metric_id": "yoy_first", "metric_name": "经营现金流同比下降", "base_metric_id": "ocf", "value": -127.02, "unit": "%", "period": "2026M9", "locator": "PDF 第 2 页"},
+    {"metric_id": "revenue", "metric_name": "营业收入", "value": 8.90, "unit": "亿元", "period": "2026Q3", "scope": "consolidated", "locator": "PDF 第 2 页"},
+    {"metric_id": "net_profit", "metric_name": "归母净利润", "value": 2092.60, "unit": "万元", "period": "2026Q3", "scope": "parent", "locator": "PDF 第 2 页"},
+    {"metric_id": "yoy_first", "metric_name": "营业收入同比增长", "base_metric_id": "revenue", "value": 5.57, "unit": "%", "period": "2026Q3", "locator": "PDF 第 2 页"},
+    {"metric_id": "yoy_first", "metric_name": "归母净利润同比增长", "base_metric_id": "net_profit", "value": 4.41, "unit": "%", "period": "2026Q3", "locator": "PDF 第 2 页"},
+    {"metric_id": "net_margin_pct", "metric_name": "净利率", "value": 2.7, "unit": "%", "period": "2026M9", "locator": "PDF 第 2 页"}
+  ]
 }

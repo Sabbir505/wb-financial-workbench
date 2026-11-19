@@ -19,6 +19,7 @@
 
 pub mod audit;
 pub mod analytics;
+pub mod binding;
 pub mod config;
 pub mod diff;
 pub mod duplicate;

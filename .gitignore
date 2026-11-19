@@ -11,3 +11,19 @@ Desktop.ini
 # Delivery archives (regenerate, do not version)
 FinancialWB_V1.0.zip
 *.zip
+
+# Thesis working documents (local, not source)
+THESIS_*.md
+chapters/
+notes/
+
+# Document exports (local, not source)
+*.pdf
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.xls
+*.xlsx
+*.odt
+*.rtf

@@ -13,7 +13,10 @@ use std::time::Duration;
 
 use wb_core::analytics;
 use wb_core::audit::AuditLog;
-use wb_core::guardrail::{build_evidence_numbers, check as guardrail_check, EvidenceInputs};
+use wb_core::binding::{
+    facts_from_sources, BindingDimension, BindingVerdict, FactSources,
+};
+use wb_core::guardrail::{check_with_facts, Guardrail};
 use wb_core::structural;
 use wb_core::model::{ReviewRequest, Verdict};
 use wb_core::research::{ApprovalPolicy, ResearchClient, ResearchError};
@@ -73,36 +76,27 @@ fn setup() -> Fixture {
 }
 
 /// Guardrail exactly as the app builds it: metrics + announcement summary +
-/// evidence excerpt + the vault brief's CALCULATION section.
-fn app_guardrail(
-    client: &ResearchClient,
-    vault: &Vault,
-    task_id: &str,
-) -> wb_core::guardrail::Guardrail {
+/// evidence excerpt + structured evidence facts + the vault brief's CALC.
+fn app_guardrail(client: &ResearchClient, vault: &Vault, task_id: &str) -> Guardrail {
     let context = client.get_context(task_id).expect("get_context");
     let evidence = client.get_evidence(task_id).expect("get_evidence");
     let detail = client.get_task(task_id).expect("get_task");
-    let mut inputs = EvidenceInputs {
-        metrics: context
-            .metrics
-            .0
-            .values()
-            .filter_map(|v| v.as_f64())
-            .collect(),
-        free_texts: vec![
-            context.announcement.summary.clone(),
-            evidence.excerpt.clone(),
-        ],
-        checked_values: Vec::new(),
+    let brief = vault.read_brief(task_id);
+    let calc = brief.as_ref().map(|b| b.calc_values());
+    let metric_unit = if context.unit.trim().is_empty() {
+        "亿元"
+    } else {
+        context.unit.as_str()
     };
-    if let Some(brief) = vault.read_brief(task_id) {
-        inputs.metrics.extend(brief.calc_values().values().copied());
-    }
-    guardrail_check(
-        &detail.sections.inference,
-        &build_evidence_numbers(&inputs),
-        &Default::default(),
-    )
+    let facts = facts_from_sources(FactSources {
+        metrics: Some(&context.metrics.0),
+        metric_unit,
+        summary: Some(context.announcement.summary.as_str()),
+        evidence: Some(&evidence),
+        calc: calc.as_ref(),
+        fact_text: None,
+    });
+    check_with_facts(&detail.sections.inference, &facts, &Default::default())
 }
 
 fn post_json(url: &str, body: &str) -> u16 {
@@ -186,14 +180,13 @@ fn full_review_loop_approve() {
     assert_eq!(methodology.pipeline.len(), 5);
     assert!((methodology.validation.tolerance_pct - 1.0).abs() < 1e-9);
 
-    // --- F4 guardrail flags exactly the model-invented difference
+    // --- F4 guardrail flags the two untraceable figures: the model-invented
+    // difference (1652) and the construction growth rate (200.71) that is not
+    // in the evidence pack. Everything else binds to a real fact.
     let g = app_guardrail(&fx.client, &fx.vault, SDIC);
-    assert!(
-        !g.ok(),
-        "the 1652万 difference must be flagged; got {:?}",
-        g.violations
-    );
-    assert_eq!(g.violation_tokens(), vec!["1652"]);
+    assert!(!g.ok(), "untraceable figures must be flagged; got {:?}", g.violations);
+    assert_eq!(g.violation_tokens(), vec!["200.71", "1652"]);
+    assert_eq!(g.binding_mismatch_count(), 0, "{:?}", g.bindings);
 
     // --- F1/F2 vault brief: 13 frontmatter fields + 4 sections
     let brief = fx.vault.read_brief(SDIC).expect("brief seeded in vault");
@@ -338,6 +331,76 @@ fn full_review_loop_approve() {
     assert_eq!(exported.as_array().unwrap().len(), 1);
 }
 
+/// Binding over the real HTTP evidence pack: a number can be traceable in
+/// value and still fail the account, period, or scope test. The value verdict
+/// stays green (`ok()` is true), and the binding verdict is the amber second
+/// result. This is the path the professor's ontology feeds.
+#[test]
+fn binding_flags_right_number_wrong_account_period_and_scope() {
+    let fx = setup();
+    let context = fx.client.get_context(SDIC).expect("get_context");
+    let evidence = fx.client.get_evidence(SDIC).expect("get_evidence");
+    let brief = fx.vault.read_brief(SDIC);
+    let calc = brief.as_ref().map(|b| b.calc_values());
+    let metric_unit = if context.unit.trim().is_empty() {
+        "亿元"
+    } else {
+        context.unit.as_str()
+    };
+    let facts = facts_from_sources(FactSources {
+        metrics: Some(&context.metrics.0),
+        metric_unit,
+        summary: Some(context.announcement.summary.as_str()),
+        evidence: Some(&evidence),
+        calc: calc.as_ref(),
+        fact_text: None,
+    });
+    let cfg = Default::default();
+
+    // Correct: 24.83亿元 is 2026M9 consolidated revenue.
+    let g = check_with_facts("2026年前三季度营业收入24.83亿元", &facts, &cfg);
+    assert!(g.ok(), "value must trace: {:?}", g.violations);
+    assert_eq!(g.binding_mismatch_count(), 0, "{:?}", g.bindings);
+    assert!(g.binding_counts().0 >= 1);
+
+    // Right number, wrong account: 5042.06万元 is deducted profit, not
+    // attributable profit.
+    let g = check_with_facts("2026年前三季度归母净利润5042.06万元", &facts, &cfg);
+    assert!(g.ok(), "the value is traceable: {:?}", g.violations);
+    assert_eq!(g.binding_mismatch_count(), 1, "{:?}", g.bindings);
+    assert!(matches!(
+        g.binding_mismatches().next().unwrap().verdict,
+        BindingVerdict::Mismatch {
+            dimension: BindingDimension::Metric,
+            ..
+        }
+    ));
+
+    // Right number, wrong period: 24.83亿元 is 2026M9, not 2026Q2.
+    let g = check_with_facts("2026Q2营业收入24.83亿元", &facts, &cfg);
+    assert!(g.ok());
+    assert_eq!(g.binding_mismatch_count(), 1, "{:?}", g.bindings);
+    assert!(matches!(
+        g.binding_mismatches().next().unwrap().verdict,
+        BindingVerdict::Mismatch {
+            dimension: BindingDimension::Period,
+            ..
+        }
+    ));
+
+    // Right number, wrong scope: revenue is consolidated, not parent-only.
+    let g = check_with_facts("母公司营业收入24.83亿元", &facts, &cfg);
+    assert!(g.ok());
+    assert_eq!(g.binding_mismatch_count(), 1, "{:?}", g.bindings);
+    assert!(matches!(
+        g.binding_mismatches().next().unwrap().verdict,
+        BindingVerdict::Mismatch {
+            dimension: BindingDimension::Scope,
+            ..
+        }
+    ));
+}
+
 #[test]
 fn revise_flow_bumps_version_and_clears_violation() {
     let fx = setup();
@@ -371,7 +434,7 @@ fn revise_flow_bumps_version_and_clears_violation() {
     }
 
     // The corrected rewrite (from i3_submit_review.revise.request.json).
-    let revised_inference = "经营变化：前三季营收19.31亿元（+10.29%），归母净利润0.31亿元（-61.27%），净利率1.62%。\n风险点：盈利大幅回落，扣非净利润0.07亿元，盈利质量承压。\n待核实问题：四季度订单与价格走势；产能利用率恢复情况。";
+    let revised_inference = "经营变化：前三季营收19.31亿元（+10.29%），归母净利润0.31亿元（-61.27%），净利率1.62%。\n风险点：盈利大幅回落，扣非净利润669.78万元，盈利质量承压。\n待核实问题：四季度订单与价格走势；产能利用率恢复情况。";
     let req = ReviewRequest {
         task_id: REVISE_TARGET.into(),
         verdict: Verdict::ApproveAsRevised,
@@ -451,7 +514,7 @@ fn revise_flow_bumps_version_and_clears_violation() {
 fn second_revise_does_not_clobber_the_preserved_original() {
     let fx = setup();
 
-    let revised_inference = "经营变化：前三季营收19.31亿元（+10.29%），归母净利润0.31亿元（-61.27%），净利率1.62%。\n风险点：盈利大幅回落，扣非净利润0.07亿元，盈利质量承压。\n待核实问题：四季度订单与价格走势；产能利用率恢复情况。";
+    let revised_inference = "经营变化：前三季营收19.31亿元（+10.29%），归母净利润0.31亿元（-61.27%），净利率1.62%。\n风险点：盈利大幅回落，扣非净利润669.78万元，盈利质量承压。\n待核实问题：四季度订单与价格走势；产能利用率恢复情况。";
 
     let backup = fx
         .vault
@@ -578,7 +641,7 @@ fn f13_f4_structural_and_analytics_pipeline() {
     // --- F13 write path: record_review_ex, exactly as workspace.submit_review
     let original_inference = detail.sections.inference.clone();
     let revised_inference = "经营变化：前三季营收19.31亿元（+10.29%），归母净利润0.31亿元（-61.27%），净利率1.62%。
-风险点：盈利大幅回落，扣非净利润0.07亿元，盈利质量承压。
+风险点：盈利大幅回落，扣非净利润669.78万元，盈利质量承压。
 待核实问题：四季度订单与价格走势；产能利用率恢复情况。";
     let req = ReviewRequest {
         task_id: REVISE_TARGET.into(),
@@ -620,7 +683,7 @@ fn f13_f4_structural_and_analytics_pipeline() {
         .revised_inference
         .as_deref()
         .unwrap_or_default()
-        .contains("0.07"));
+        .contains("669.78"));
     // Raw JSONL round-trips the new fields for future analytics.
     let raw = std::fs::read_to_string(fx.audit.path()).unwrap();
     assert!(raw.contains("\"guardrail_tokens\":[\"2460\"]"), "{raw}");

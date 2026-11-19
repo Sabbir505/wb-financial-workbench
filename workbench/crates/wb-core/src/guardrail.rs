@@ -9,6 +9,8 @@
 
 use regex::Regex;
 
+use crate::binding::{self, BindingSpan, BindingVerdict, EvidenceFact, Period};
+
 #[derive(Clone, Debug)]
 pub struct GuardrailConfig {
     pub tolerance_pct: f64,
@@ -60,6 +62,10 @@ pub struct Violation {
 pub struct Guardrail {
     pub spans: Vec<NumSpan>,
     pub violations: Vec<Violation>,
+    /// One entry per numeric token, in the same order as `spans`. The value
+    /// verdict is in `spans`/`violations`; this vector carries the binding
+    /// verdict and is advisory (it never changes `ok()`).
+    pub bindings: Vec<BindingSpan>,
 }
 
 impl Guardrail {
@@ -73,6 +79,32 @@ impl Guardrail {
             .iter()
             .map(|v| format!("{}", trim_float(v.value)))
             .collect()
+    }
+
+    /// Numbers whose value is traceable but whose account, period, scope or
+    /// unit does not match the evidence. Advisory: not part of `ok()`.
+    pub fn binding_mismatches(&self) -> impl Iterator<Item = &BindingSpan> {
+        self.bindings
+            .iter()
+            .filter(|b| matches!(b.verdict, BindingVerdict::Mismatch { .. }))
+    }
+
+    pub fn binding_mismatch_count(&self) -> usize {
+        self.binding_mismatches().count()
+    }
+
+    /// `(supported, value_only, mismatch, unsupported)` over all numeric tokens.
+    pub fn binding_counts(&self) -> (usize, usize, usize, usize) {
+        let mut out = (0, 0, 0, 0);
+        for b in &self.bindings {
+            match b.verdict {
+                BindingVerdict::Supported => out.0 += 1,
+                BindingVerdict::ValueOnly => out.1 += 1,
+                BindingVerdict::Mismatch { .. } => out.2 += 1,
+                BindingVerdict::Unsupported => out.3 += 1,
+            }
+        }
+        out
     }
 }
 
@@ -122,9 +154,21 @@ pub fn build_evidence_numbers(inputs: &EvidenceInputs) -> Vec<f64> {
     out
 }
 
-/// Run the guardrail over `text`. Byte offsets refer to `text` and are always
-/// char-boundary safe (number matches start/end on ASCII digits/punctuation).
-pub fn check(text: &str, evidence: &[f64], cfg: &GuardrailConfig) -> Guardrail {
+/// One numeric token as it appears in the source text.
+#[derive(Clone, Debug)]
+pub(crate) struct RawNumber {
+    pub start: usize,
+    pub end: usize,
+    pub raw: String,
+    pub value: f64,
+    pub is_pct: bool,
+}
+
+/// Scan `text` for number claims. This is the single place that decides what a
+/// "number" is (dates, URLs and identifiers are excluded). Both the value check
+/// and the binding extractor use it, so they can never disagree about which
+/// tokens exist.
+pub(crate) fn scan_numbers(text: &str) -> Vec<RawNumber> {
     let num_re = number_regex();
     let date_re = Regex::new(r"\d{4}-\d{1,2}-\d{1,2}").unwrap();
     let url_re = Regex::new(r"https?://\S+").unwrap();
@@ -135,9 +179,7 @@ pub fn check(text: &str, evidence: &[f64], cfg: &GuardrailConfig) -> Guardrail {
         excluded.push((m.start(), m.end()));
     }
 
-    let mut spans = Vec::new();
-    let mut violations = Vec::new();
-
+    let mut out = Vec::new();
     for m in num_re.find_iter(text) {
         let (start, end) = (m.start(), m.end());
         if excluded.iter().any(|(s, e)| start >= *s && end <= *e) {
@@ -158,53 +200,183 @@ pub fn check(text: &str, evidence: &[f64], cfg: &GuardrailConfig) -> Guardrail {
         if !prev_ok || !next_ok {
             continue;
         }
+        let raw = m.as_str();
+        if is_period_label(text, end, raw) {
+            continue;
+        }
         let is_pct = pct_re
             .find_iter(text)
             .any(|p| p.start() <= start && p.end() >= end);
-        let raw = m.as_str();
         let Ok(value) = raw.replace(',', "").parse::<f64>() else {
             continue;
         };
+        out.push(RawNumber {
+            start,
+            end,
+            raw: raw.to_string(),
+            value,
+            is_pct,
+        });
+    }
+    out
+}
 
-        // Scale candidates: direct, 万元→亿元, 亿元→万元.
-        let candidates = [value, value / 10_000.0, value * 10_000.0];
+/// A bare year (`2026年`), month (`10月`) or day (`29日`) is a period label, not
+/// a numeric claim. Dates such as `2026-10-29` are already covered by the date
+/// exclusion. This keeps "2026年前三季度营业收入..." from flagging 2026.
+fn is_period_label(text: &str, end: usize, raw: &str) -> bool {
+    let digits = raw.replace(',', "");
+    if digits.is_empty() || !digits.chars().all(|c| c.is_ascii_digit()) {
+        return false;
+    }
+    match text[end..].trim_start().chars().next() {
+        Some('年') => digits.len() == 4,
+        Some('月') | Some('日') => digits.len() <= 2,
+        _ => false,
+    }
+}
+
+fn violation_hint(raw: &str, cfg: &GuardrailConfig) -> String {
+    format!(
+        "「{raw}」未能在证据数字中回溯（容差 {tol}% / {pp}pp）。模型自算差值不是证据数字，须改引公告原始数字。",
+        tol = cfg.tolerance_pct,
+        pp = cfg.pp_tolerance
+    )
+}
+
+/// Run the value guardrail over `text`. Byte offsets refer to `text` and are
+/// always char-boundary safe (number matches start/end on ASCII digits and
+/// punctuation).
+///
+/// Percentages are never rescaled. The old `[v, v/1e4, v*1e4]` candidates made
+/// `200.71%` match `0.002483` after a 10,000x division (the 0.02pp floor then
+/// accepted the result), which is a false negative. Amounts still use the
+/// 万元/亿元 candidates because the brief and the metrics can be in different
+/// scales.
+pub fn check(text: &str, evidence: &[f64], cfg: &GuardrailConfig) -> Guardrail {
+    let mut spans = Vec::new();
+    let mut violations = Vec::new();
+
+    for raw in scan_numbers(text) {
+        let candidates: Vec<f64> = if raw.is_pct {
+            vec![raw.value]
+        } else {
+            vec![raw.value, raw.value / 10_000.0, raw.value * 10_000.0]
+        };
         let mut matched = None;
         for cand in candidates {
             if let Some(e) = evidence
                 .iter()
                 .copied()
-                .find(|e| within_tolerance(cand, *e, is_pct, cfg))
+                .find(|e| within_tolerance(cand, *e, raw.is_pct, cfg))
             {
                 matched = Some(e);
                 break;
             }
         }
 
-        let span = NumSpan {
-            start,
-            end,
-            raw: raw.to_string(),
-            value,
+        spans.push(NumSpan {
+            start: raw.start,
+            end: raw.end,
+            raw: raw.raw.clone(),
+            value: raw.value,
             ok: matched.is_some(),
             matched,
-        };
+        });
         if matched.is_none() {
             violations.push(Violation {
-                start,
-                end,
-                raw: raw.to_string(),
-                value,
-                hint: format!(
-                    "「{raw}」未能在证据数字中回溯（容差 {tol}% / {pp}pp）。模型自算差值不是证据数字，须改引公告原始数字。",
-                    tol = cfg.tolerance_pct,
-                    pp = cfg.pp_tolerance
-                ),
+                start: raw.start,
+                end: raw.end,
+                raw: raw.raw.clone(),
+                value: raw.value,
+                hint: violation_hint(&raw.raw, cfg),
             });
         }
-        spans.push(span);
     }
 
-    Guardrail { spans, violations }
+    Guardrail {
+        spans,
+        violations,
+        bindings: Vec::new(),
+    }
+}
+
+/// Run the value check and, for every value that can be traced, compare the
+/// claim's metric, base metric, period, scope and unit against the matched
+/// fact. `violations` stays value-only (the supervisor's acceptance metric);
+/// `bindings` carries the advisory second verdict.
+pub fn check_with_facts(
+    text: &str,
+    facts: &[EvidenceFact],
+    cfg: &GuardrailConfig,
+) -> Guardrail {
+    let mut spans = Vec::new();
+    let mut violations = Vec::new();
+    let mut bindings = Vec::new();
+
+    for raw in scan_numbers(text) {
+        let cue = binding::cue_for(text, &raw, Period::unknown());
+        let candidates: Vec<(usize, &EvidenceFact)> = facts
+            .iter()
+            .enumerate()
+            .filter(|(_, f)| binding::value_matches(&cue, f, cfg))
+            .collect();
+
+        if candidates.is_empty() {
+            spans.push(NumSpan {
+                start: raw.start,
+                end: raw.end,
+                raw: raw.raw.clone(),
+                value: raw.value,
+                ok: false,
+                matched: None,
+            });
+            violations.push(Violation {
+                start: raw.start,
+                end: raw.end,
+                raw: raw.raw.clone(),
+                value: raw.value,
+                hint: violation_hint(&raw.raw, cfg),
+            });
+            bindings.push(BindingSpan {
+                start: raw.start,
+                end: raw.end,
+                raw: raw.raw.clone(),
+                value: raw.value,
+                verdict: BindingVerdict::Unsupported,
+                fact: None,
+                hint: String::new(),
+            });
+            continue;
+        }
+
+        let (verdict, fact) = binding::resolve(&cue, &candidates);
+        let hint = binding::hint_for(&verdict, &cue, fact.as_ref());
+        let matched = fact.as_ref().map(|f| f.value);
+        spans.push(NumSpan {
+            start: raw.start,
+            end: raw.end,
+            raw: raw.raw.clone(),
+            value: raw.value,
+            ok: true,
+            matched,
+        });
+        bindings.push(BindingSpan {
+            start: raw.start,
+            end: raw.end,
+            raw: raw.raw.clone(),
+            value: raw.value,
+            verdict,
+            fact,
+            hint,
+        });
+    }
+
+    Guardrail {
+        spans,
+        violations,
+        bindings,
+    }
 }
 
 /// Two tolerance regimes (contract v3 §6 / supervisor spec §2.1):
@@ -302,5 +474,148 @@ mod tests {
         // An amount far below the floor is not legitimised by proximity to zero.
         assert!(!within_tolerance(0.015, 0.0, false, &cfg));
         assert!(within_tolerance(0.0, 0.0, false, &cfg)); // exact zero still matches
+    }
+
+    #[test]
+    fn period_labels_are_not_number_claims() {
+        let g = check(
+            "2026年前三季度营业收入24.83亿元",
+            &[24.83],
+            &GuardrailConfig::default(),
+        );
+        assert!(g.ok(), "violations: {:?}", g.violations);
+    }
+
+    /// Regression: `200.71%` used to pass because the percentage was divided by
+    /// 10,000 and the 0.02pp floor accepted the result against `0.002483`
+    /// (a scale variant of revenue). Percentages are never rescaled now.
+    #[test]
+    fn percentage_is_not_rescaled_into_an_amount() {
+        let g = check(
+            "在建工程增长200.71%",
+            &[0.002483],
+            &GuardrailConfig::default(),
+        );
+        assert_eq!(g.violation_tokens(), vec!["200.71"]);
+    }
+
+    fn seed_inference() -> &'static str {
+        "经营变化：前三季营收+10.90%、归母净利+47.86%、扣非+98.64%；Q3单季增速明显回落；在建工程+200.71%，扩产项目进入建设期。\n风险点：经营现金流-7483.90万元（-127.02%），存货及应收账款占用增加；净利率约2.7%，盈利偏薄；扣非低于归母约1652万元。\n待核实问题：膜材扩产与磁性材料项目投产节奏及产能消化；非经常性损益具体构成；四季度经营现金流能否改善。"
+    }
+
+    fn seed_facts() -> Vec<EvidenceFact> {
+        let summary = "摘要：前三季度营业收入24.83亿元，同比增长10.90%；归母净利润6693.78万元，同比增长47.86%；扣非净利润5042.06万元，同比增长98.64%。第三季度单季营收8.90亿元，同比增长5.57%，归母净利润2092.60万元，同比增长4.41%。经营活动现金流量净额-7483.90万元，同比下降127.02%。";
+        let excerpt = "营业收入 2,482,691,849.55 元（同比 +10.90%）；归属于上市公司股东的净利润 66,937,816.48 元（同比 +47.86%）；归属于上市公司股东的扣除非经常性损益的净利润 50,420,578.11 元（同比 +98.64%）；经营活动产生的现金流量净额 -74,838,960.79 元（同比 -127.02%）。";
+        let mut metrics = std::collections::BTreeMap::new();
+        for (k, v) in [
+            ("revenue", 24.83),
+            ("net_profit", 0.669378),
+            ("net_profit_deducted", 0.504206),
+            ("ocf", -0.74839),
+            ("yoy_first", 10.9),
+            ("pct_change_event", 47.86),
+            ("net_margin_pct", 2.7),
+        ] {
+            metrics.insert(k.to_string(), serde_json::Value::from(v));
+        }
+        let mut facts = Vec::new();
+        facts.extend(crate::binding::facts_from_text(
+            summary,
+            crate::binding::Period::unknown(),
+            crate::binding::FactSource::Excerpt,
+            "summary",
+        ));
+        facts.extend(crate::binding::facts_from_text(
+            excerpt,
+            crate::binding::Period::unknown(),
+            crate::binding::FactSource::Excerpt,
+            "audit",
+        ));
+        facts.extend(crate::binding::facts_from_metrics(
+            &metrics,
+            "亿元",
+            crate::binding::Period::unknown(),
+            crate::binding::FactSource::Calc,
+        ));
+        facts
+    }
+
+    /// The seed case, with the real excerpt and summary. The two untraceable
+    /// figures are the model's own difference (1652) and the construction
+    /// growth rate (200.71) that the old scale-candidate path let through.
+    /// Everything else must bind: no amber flags on the clean figures.
+    #[test]
+    fn seed_case_value_and_binding_are_separated() {
+        let facts = seed_facts();
+        let g = check_with_facts(seed_inference(), &facts, &GuardrailConfig::default());
+        assert_eq!(g.violation_tokens(), vec!["200.71", "1652"]);
+        assert_eq!(g.binding_mismatch_count(), 0, "{:?}", g.bindings);
+        assert_eq!(g.binding_counts(), (6, 0, 0, 2));
+    }
+
+    /// A binding mismatch is advisory: it must not change the value verdict.
+    #[test]
+    fn binding_mismatch_does_not_change_ok() {
+        let fact = EvidenceFact {
+            metric_id: Some("revenue".into()),
+            base_metric_id: None,
+            value: 2_483_000_000.0,
+            native: 24.83,
+            unit: crate::binding::Unit::Amount,
+            scale: crate::binding::AmountScale::Yi,
+            period: crate::binding::Period::unknown(),
+            scope: crate::binding::Scope::Unknown,
+            source: crate::binding::FactSource::Metric,
+            label: "营业收入".into(),
+            locator: "test".into(),
+        };
+        let g = check_with_facts(
+            "归母净利润24.83亿元",
+            &[fact],
+            &GuardrailConfig::default(),
+        );
+        assert!(g.ok(), "value is traceable: {:?}", g.violations);
+        assert_eq!(g.binding_mismatch_count(), 1);
+        assert!(matches!(
+            g.bindings[0].verdict,
+            BindingVerdict::Mismatch {
+                dimension: crate::binding::BindingDimension::Metric,
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn binding_flags_wrong_period_without_a_value_flag() {
+        let fact = EvidenceFact {
+            metric_id: Some("revenue".into()),
+            base_metric_id: None,
+            value: 2_483_000_000.0,
+            native: 24.83,
+            unit: crate::binding::Unit::Amount,
+            scale: crate::binding::AmountScale::Yi,
+            period: crate::binding::Period {
+                year: Some(2026),
+                span: crate::binding::PeriodSpan::Q2,
+            },
+            scope: crate::binding::Scope::Unknown,
+            source: crate::binding::FactSource::Metric,
+            label: "营业收入".into(),
+            locator: "test".into(),
+        };
+        let g = check_with_facts(
+            "2026Q3营业收入24.83亿元",
+            &[fact],
+            &GuardrailConfig::default(),
+        );
+        assert!(g.ok());
+        assert_eq!(g.binding_mismatch_count(), 1);
+        assert!(matches!(
+            g.bindings[0].verdict,
+            BindingVerdict::Mismatch {
+                dimension: crate::binding::BindingDimension::Period,
+                ..
+            }
+        ));
     }
 }

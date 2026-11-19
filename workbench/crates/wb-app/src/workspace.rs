@@ -14,8 +14,10 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use wb_core::audit::AuditLog;
 use wb_core::config::AppConfig;
+use wb_core::binding::{self, EvidenceFact};
 use wb_core::guardrail::{
-    build_evidence_numbers, check as guardrail_check, EvidenceInputs, Guardrail, GuardrailConfig,
+    build_evidence_numbers, check as guardrail_check, check_with_facts as guardrail_check_with_facts,
+    EvidenceInputs, Guardrail, GuardrailConfig,
 };
 use wb_core::model::{
     ContextBundle, Evidence, Methodology, ReviewRequest, TaskDetail, TaskSummary, Verdict,
@@ -436,19 +438,15 @@ impl Workspace {
                 match detail {
                     Ok(mut d) => {
                         // Guardrail input: deterministic metrics + free-text evidence
-                        // + the vault brief's CALCULATION section.
-                        let mut inputs = EvidenceInputs::default();
-                        if let Ok(ctx) = &context {
-                            inputs.metrics =
-                                ctx.metrics.0.values().filter_map(|v| v.as_f64()).collect();
-                            inputs.free_texts = vec![ctx.announcement.summary.clone()];
-                        }
-                        if let Ok(ev) = &evidence {
-                            inputs.free_texts.push(ev.excerpt.clone());
-                        }
-                        if let Some(brief) = vault.read_brief(&tid) {
-                            inputs.metrics.extend(brief.calc_values().values().copied());
-                        }
+                        // + the vault brief's CALCULATION section, now kept as
+                        // structured facts so value and binding are evaluated on
+                        // the same objects.
+                        let brief = vault.read_brief(&tid);
+                        let facts = guardrail_facts(
+                            context.as_ref().ok(),
+                            evidence.as_ref().ok(),
+                            brief.as_ref(),
+                        );
                         // Calibrate with the server's own tolerances when available.
                         let guard_cfg = methodology
                             .as_ref()
@@ -458,9 +456,9 @@ impl Workspace {
                                 pp_tolerance: m.validation.pp_tolerance,
                             })
                             .unwrap_or_default();
-                        ws.guardrail = Some(guardrail_check(
+                        ws.guardrail = Some(guardrail_check_with_facts(
                             &d.sections.inference,
-                            &build_evidence_numbers(&inputs),
+                            &facts,
                             &guard_cfg,
                         ));
                         // F4 layer 2: re-compute derived indicators from the
@@ -487,8 +485,10 @@ impl Workspace {
                             labelled
                                 .excerpts
                                 .push((ev.locator.clone(), ev.excerpt.clone()));
+                            labelled.dto =
+                                binding::facts_from_dto(&ev.facts, binding::FactSource::Excerpt);
                         }
-                        if let Some(brief) = vault.read_brief(&tid) {
+                        if let Some(brief) = &brief {
                             labelled.calc = brief.calc_values().into_iter().collect();
                         }
                         ws.citations = provenance::cite(&d.sections.inference, &labelled, &guard_cfg);
@@ -521,18 +521,11 @@ impl Workspace {
                         // Degraded fallback: build the detail from the vault brief (I2).
                         match ws.detail_from_vault(&tid) {
                             Some(mut d) => {
-                                let mut inputs = EvidenceInputs::default();
-                                if let Some(brief) = vault.read_brief(&tid) {
-                                    inputs.metrics.extend(brief.calc_values().values().copied());
-                                    if let Some(fact) =
-                                        brief.section(wb_core::vault::SectionKind::Fact)
-                                    {
-                                        inputs.free_texts.push(fact.body.clone());
-                                    }
-                                }
-                                ws.guardrail = Some(guardrail_check(
+                                let brief = vault.read_brief(&tid);
+                                let facts = guardrail_facts(None, None, brief.as_ref());
+                                ws.guardrail = Some(guardrail_check_with_facts(
                                     &d.sections.inference,
-                                    &build_evidence_numbers(&inputs),
+                                    &facts,
                                     &Default::default(),
                                 ));
                                 ws.structural = Some(structural::check(&d.sections.calculation.0, &Default::default()));
@@ -3051,6 +3044,43 @@ fn presummary_for(
     Some(presummary::with_verdicts(s, before_ok, after_ok))
 }
 
+/// Build the structured fact list shared by the value guardrail and the
+/// binding layer.
+///
+/// Metrics and CALC values keep their keys, so binding can compare the account.
+/// The announcement summary and audit excerpt are parsed with the same cue
+/// extractor as the claim text. The evidence pack's structured `facts` are the
+/// authoritative path for the supervisor's ontology: they carry unit, period
+/// and scope per fact.
+fn guardrail_facts(
+    context: Option<&ContextBundle>,
+    evidence: Option<&Evidence>,
+    brief: Option<&Brief>,
+) -> Vec<EvidenceFact> {
+    let calc = brief.map(|b| b.calc_values());
+    // Degraded path: no context bundle, so the FACT section is the only prose
+    // evidence available.
+    let fact_text = if context.is_none() {
+        brief
+            .and_then(|b| b.section(wb_core::vault::SectionKind::Fact))
+            .map(|s| s.body.clone())
+    } else {
+        None
+    };
+    let metric_unit = context
+        .map(|c| c.unit.as_str())
+        .filter(|u| !u.trim().is_empty())
+        .unwrap_or("亿元");
+    binding::facts_from_sources(binding::FactSources {
+        metrics: context.map(|c| &c.metrics.0),
+        metric_unit,
+        summary: context.map(|c| c.announcement.summary.as_str()),
+        evidence,
+        calc: calc.as_ref(),
+        fact_text: fact_text.as_deref(),
+    })
+}
+
 /// Port of the research API base URL, for the sidebar's quiet meta line
 /// (`api :8012 · I1 :8898`) — full URLs overflow a 232px column mid-value.
 fn api_port(base: &str) -> &str {
@@ -3079,5 +3109,40 @@ pub fn review_idempotency_key(task_id: &str, brief_version: u64) -> String {
 impl gpui::Render for Workspace {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         self.render_root(window, cx)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wb_core::binding::{PeriodSpan, Scope};
+    use wb_core::model::EvidenceFactDto;
+
+    /// The app adapter must not drop the evidence pack's structured facts.
+    /// Those facts are the only path that carries unit, period and scope from
+    /// the professor's ontology into the binding check.
+    #[test]
+    fn guardrail_facts_carries_structured_evidence_facts() {
+        let evidence = Evidence {
+            event_id: "EV-test".into(),
+            facts: vec![EvidenceFactDto {
+                metric_id: "revenue".into(),
+                metric_name: "营业收入".into(),
+                value: 24.83,
+                unit: "亿元".into(),
+                period: "2026M9".into(),
+                scope: "consolidated".into(),
+                locator: "PDF 第 2 页".into(),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+        let facts = guardrail_facts(None, Some(&evidence), None);
+        assert_eq!(facts.len(), 1);
+        let f = &facts[0];
+        assert_eq!(f.metric_id.as_deref(), Some("revenue"));
+        assert_eq!(f.scope, Scope::Consolidated);
+        assert_eq!(f.period.span, PeriodSpan::M9);
+        assert!((f.value - 2_483_000_000.0).abs() < 1.0);
     }
 }
