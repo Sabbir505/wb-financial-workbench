@@ -761,6 +761,23 @@ pub fn facts_from_sources(sources: FactSources<'_>) -> Vec<EvidenceFact> {
 /// Build facts from the structured evidence-pack extension. This is the path
 /// the professor's ontology should use: the service owns the metric id, unit,
 /// period and scope, and the workbench only checks them.
+/// Upstream ontology ids are not the workbench's canonical keys: growth facts
+/// arrive as `<base>_yoy`, and the deducted profit account arrives as
+/// `deducted_net_profit`. Normalise at the DTO boundary so binding compares
+/// like with like. The canonical growth key stays `yoy_first`, with the base
+/// account carried in `base_metric_id`.
+fn canonical_metric(id: &str) -> (String, Option<String>) {
+    let id = id.trim();
+    if let Some(base) = id.strip_suffix("_yoy") {
+        let (base, _) = canonical_metric(base);
+        return ("yoy_first".to_string(), Some(base));
+    }
+    match id {
+        "deducted_net_profit" => ("net_profit_deducted".to_string(), None),
+        other => (other.to_string(), None),
+    }
+}
+
 pub fn facts_from_dto(facts: &[EvidenceFactDto], source: FactSource) -> Vec<EvidenceFact> {
     facts
         .iter()
@@ -768,8 +785,9 @@ pub fn facts_from_dto(facts: &[EvidenceFactDto], source: FactSource) -> Vec<Evid
             if !f.value.is_finite() {
                 return None;
             }
+            let (metric_id, derived_base) = canonical_metric(&f.metric_id);
             let (unit, scale) = if f.unit.trim().is_empty() {
-                unit_for_metric(&f.metric_id, "")
+                unit_for_metric(&metric_id, "")
             } else {
                 unit_from_str(&f.unit)
             };
@@ -778,16 +796,21 @@ pub fn facts_from_dto(facts: &[EvidenceFactDto], source: FactSource) -> Vec<Evid
             } else {
                 parse_period(&f.period).unwrap_or(Period::unknown())
             };
+            let label = if f.metric_name.trim().is_empty() {
+                metric_name(&metric_id).to_string()
+            } else {
+                f.metric_name.clone()
+            };
             Some(EvidenceFact {
-                metric_id: if f.metric_id.trim().is_empty() {
+                metric_id: if metric_id.is_empty() {
                     None
                 } else {
-                    Some(f.metric_id.clone())
+                    Some(metric_id)
                 },
                 base_metric_id: if f.base_metric_id.trim().is_empty() {
-                    None
+                    derived_base
                 } else {
-                    Some(f.base_metric_id.clone())
+                    Some(canonical_metric(&f.base_metric_id).0)
                 },
                 value: normalize(f.value, unit, scale),
                 native: f.value,
@@ -796,11 +819,7 @@ pub fn facts_from_dto(facts: &[EvidenceFactDto], source: FactSource) -> Vec<Evid
                 period,
                 scope: scope_from_dto(&f.scope),
                 source,
-                label: if f.metric_name.trim().is_empty() {
-                    metric_name(&f.metric_id).to_string()
-                } else {
-                    f.metric_name.clone()
-                },
+                label,
                 locator: f.locator.clone(),
             })
         })
@@ -1577,5 +1596,77 @@ mod tests {
         );
         assert!((f.value - 66_937_800.0).abs() < 1.0);
         assert_eq!(f.locator, "PDF 第 2 页");
+    }
+
+    /// The live upstream service emits `<base>_yoy` growth ids and
+    /// `deducted_net_profit`. Both must bind against the canonical keys, or
+    /// every growth claim is reported as a metric mismatch.
+    #[test]
+    fn upstream_growth_ids_normalise_to_yoy_first_with_base() {
+        let mk = |id: &str, name: &str, v: f64, base: &str| EvidenceFactDto {
+            metric_id: id.into(),
+            metric_name: name.into(),
+            base_metric_id: base.into(),
+            value: v,
+            unit: "%".into(),
+            period: "2026M9".into(),
+            ..Default::default()
+        };
+        let dto = vec![
+            mk("revenue_yoy", "营业收入同比", 10.9, "revenue"),
+            mk("net_profit_yoy", "归母净利润同比", 47.86, "net_profit"),
+            mk(
+                "deducted_net_profit_yoy",
+                "扣非归母净利润同比",
+                98.64,
+                "deducted_net_profit",
+            ),
+            mk("ocf_yoy", "经营活动现金流量净额同比", -127.02, "ocf"),
+        ];
+        let facts = facts_from_dto(&dto, FactSource::Excerpt);
+        assert_eq!(facts.len(), 4);
+        assert!(facts
+            .iter()
+            .all(|f| f.metric_id.as_deref() == Some("yoy_first")));
+        let bases: Vec<&str> = facts
+            .iter()
+            .filter_map(|f| f.base_metric_id.as_deref())
+            .collect();
+        assert_eq!(
+            bases,
+            vec!["revenue", "net_profit", "net_profit_deducted", "ocf"]
+        );
+        assert!(facts.iter().all(|f| f.unit == Unit::Percent));
+    }
+
+    #[test]
+    fn upstream_deducted_account_resolves_a_growth_claim() {
+        let dto = vec![
+            EvidenceFactDto {
+                metric_id: "deducted_net_profit".into(),
+                metric_name: "扣非归母净利润".into(),
+                value: 0.504206,
+                unit: "亿元".into(),
+                period: "2026M9".into(),
+                scope: "deducted".into(),
+                ..Default::default()
+            },
+            EvidenceFactDto {
+                metric_id: "deducted_net_profit_yoy".into(),
+                metric_name: "扣非归母净利润同比".into(),
+                base_metric_id: "deducted_net_profit".into(),
+                value: 98.64,
+                unit: "%".into(),
+                period: "2026M9".into(),
+                scope: "deducted".into(),
+                ..Default::default()
+            },
+        ];
+        let facts = facts_from_dto(&dto, FactSource::Excerpt);
+        assert_eq!(facts[0].metric_id.as_deref(), Some("net_profit_deducted"));
+        let c = cue("扣非净利润同比增长98.64%");
+        let cands: Vec<(usize, &EvidenceFact)> = facts.iter().enumerate().collect();
+        let (v, _) = resolve(&c, &cands);
+        assert_eq!(v, BindingVerdict::Supported);
     }
 }
