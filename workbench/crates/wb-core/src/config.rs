@@ -6,9 +6,9 @@ use std::path::PathBuf;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AppConfig {
-    /// I4/I6 read-only base URL, e.g. http://127.0.0.1:8012/api
+    /// I4/I6 read-only base URL, e.g. http://127.0.0.1:8020/api
     pub research_api_base: String,
-    /// I3 MCP endpoint, e.g. http://127.0.0.1:8012/mcp
+    /// I3 MCP endpoint, e.g. http://127.0.0.1:8020/mcp
     pub research_mcp_url: String,
     /// I2 vault root (research briefs live under research/{yyyy-mm}/)
     pub vault_root: PathBuf,
@@ -38,8 +38,8 @@ fn default_chat_port() -> u16 {
 impl Default for AppConfig {
     fn default() -> Self {
         AppConfig {
-            research_api_base: "http://127.0.0.1:8012/api".into(),
-            research_mcp_url: "http://127.0.0.1:8012/mcp".into(),
+            research_api_base: "http://127.0.0.1:8020/api".into(),
+            research_mcp_url: "http://127.0.0.1:8020/mcp".into(),
             vault_root: PathBuf::from("research-vault"),
             data_dir: PathBuf::from("wb-data"),
             webhook_port: 8898,

@@ -98,7 +98,7 @@ Requires Rust (stable) and Windows.
 ```bash
 # terminal 1 — the stand-in research service
 cd workbench
-cargo run -p wb-mock -- --port 8012 --api-mock vendor/api_mock --vault research-vault
+cargo run -p wb-mock -- --port 8020 --api-mock vendor/api_mock --vault research-vault
 
 # terminal 2 — the workbench
 cargo run -p wb-app                # add --view library|quadrant|audit to start on a view
@@ -113,9 +113,9 @@ Keyboard: `Ctrl+1–4` switch views · `Ctrl+R` refresh queue · `Esc` back / cl
 To exercise the I1 webhook push path:
 
 ```bash
-cargo run -p wb-mock -- --port 8012 --api-mock vendor/api_mock --vault research-vault \
+cargo run -p wb-mock -- --port 8020 --api-mock vendor/api_mock --vault research-vault \
     --webhook-url http://127.0.0.1:8898/webhook/i1
-curl -X POST http://127.0.0.1:8012/__test/emit_webhook -d '{"task_id":"RT-PR-EV-20261029-1225636931-S300806"}'
+curl -X POST http://127.0.0.1:8020/__test/emit_webhook -d '{"task_id":"RT-PR-EV-20261029-1225636931-S300806"}'
 ```
 
 ## Verify

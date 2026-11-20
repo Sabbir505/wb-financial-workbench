@@ -19,7 +19,7 @@ KG-Palantir 真实运行样本（斯迪克 2026Q3 案例主线 + 锚点池八家
 | `financial_reports.luxshare_failed.json` | 同上 | 立讯精密 Q3（失败案例） |
 | `financial_reports.pledge_sdic.json` | 同上 | **非业绩类样本**：斯迪克控股股东质押公告（news 类） |
 | `financial_reports.{deguan,jizhi,shuangxing,luxshare_v2}.json` | 同上 | 德冠/激智/双星/立讯 样本（扩库第二批） |
-| `financial_indicators.response.json` | `GET /financial/indicators/{symbol}?period=` | 斯迪克 Q3 指标（原 I4 metrics，8012 已运行） |
+| `financial_indicators.response.json` | `GET /financial/indicators/{symbol}?period=` | 斯迪克 Q3 指标（原 I4 metrics，8020 已运行） |
 | `financial_indicators.{fenghua,jiemei,yongguan_failed,luxshare_failed,deguan,jizhi,shuangxing,luxshare_v2}.json` | 同上 | 八家公司的确定性计算指标 |
 | — | `/market/*` | 不启用（市场/股价面） |
 

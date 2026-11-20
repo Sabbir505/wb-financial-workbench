@@ -1,9 +1,9 @@
 //! wb-mock CLI: run a standalone mock KG-Palantir research service.
 //!
 //! Usage:
-//!   wb-mock [--port 8012] [--api-mock <dir>] [--vault <dir>] [--webhook-url <url>]
+//!   wb-mock [--port 8020] [--api-mock <dir>] [--vault <dir>] [--webhook-url <url>]
 //!
-//! Dev defaults: port 8012, api-mock `vendor/api_mock` (repo-relative), vault
+//! Dev defaults: port 8020, api-mock `vendor/api_mock` (repo-relative), vault
 //! `research-vault`, no webhook target. Point WB at it via wb.config.json or env.
 
 use wb_mock::{MockConfig, MockServer};
@@ -36,7 +36,7 @@ fn main() {
         .unwrap_or_else(|| cwd.join("research-vault").to_string_lossy().to_string());
     let port: u16 = arg_value(&args, "--port")
         .and_then(|v| v.parse().ok())
-        .unwrap_or(8012);
+        .unwrap_or(8020);
     let webhook_target = arg_value(&args, "--webhook-url");
 
     let cfg = MockConfig {

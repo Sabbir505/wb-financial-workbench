@@ -20,7 +20,7 @@ number in model text must trace back to evidence numbers.
 ```bash
 # 1. start the mock research service (terminal 1)
 cd workbench
-cargo run -p wb-mock -- --port 8012 --api-mock vendor/api_mock --vault research-vault
+cargo run -p wb-mock -- --port 8020 --api-mock vendor/api_mock --vault research-vault
 
 # 2. start the workbench (terminal 2)
 cargo run -p wb-app                 # add --view library|quadrant|audit to start on a view
@@ -35,7 +35,7 @@ To exercise the I1 webhook path, start the mock with
 `--webhook-url http://127.0.0.1:8898/webhook/i1` and trigger a notification:
 
 ```bash
-curl -X POST http://127.0.0.1:8012/__test/emit_webhook -d '{"task_id":"RT-PR-EV-20261029-1225636931-S300806"}'
+curl -X POST http://127.0.0.1:8020/__test/emit_webhook -d '{"task_id":"RT-PR-EV-20261029-1225636931-S300806"}'
 ```
 
 ## AI side chat (F14) — local llama.cpp, nothing leaves the machine

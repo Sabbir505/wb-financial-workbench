@@ -23,8 +23,8 @@ Chinese counterpart: `Ref/WB-KG接口契约-v3.md` (section numbering matches on
 | I1 | Graph/Research → WB | HTTP webhook | New-brief / pending-review notification | v2 carried over |
 | I2 | Research → WB vault | Filesystem (.md) | Research asset writes (brief/evidence/checks) | v2 carried over |
 | I3 | WB → Research | MCP tools/call | Review submit, task/context queries | v2 carried over |
-| I4 | WB → KG-Palantir graph | HTTP GET (read-only) | Announcement/metrics/evidence queries | **Implemented** (port 8012) |
-| I5 | Research → graph | HTTP GET (read-only) | Context-build pull-back (internal) | **Implemented** (port 8012) |
+| I4 | WB → KG-Palantir graph | HTTP GET (read-only) | Announcement/metrics/evidence queries | **Implemented** (port 8020) |
+| I5 | Research → graph | HTTP GET (read-only) | Context-build pull-back (internal) | **Implemented** (port 8020) |
 | I6 | WB → KG-Palantir | HTTP GET (read-only) | Extended surface: market/history/search/predictions/analysis/audit | New |
 | I7 | WB → Research | HTTP POST | Review submission (HTTP equivalent of I3; the formal fallback when MCP is unavailable) | New |
 | I8 | WB → KG-Palantir | HTTP POST | Numeric guardrail check (pre-publish) | New |
@@ -33,7 +33,7 @@ Chinese counterpart: `Ref/WB-KG接口契约-v3.md` (section numbering matches on
 Conventions: `404` = object not found; `409` = version mismatch (response carries the latest
 version); `503` = data missing (caller transitions to WAITING_DATA); `422` = numeric check failed
 (I8 only); `400` = bad parameters.
-Base URL: `http://127.0.0.1:8012/api` (I4–I6, I9 read-only); I7/I8 are hosted by the research
+Base URL: `http://127.0.0.1:8020/api` (I4–I6, I9 read-only); I7/I8 are hosted by the research
 service (write and read paths stay separated).
 
 ## 2. Carried-over Interfaces (I1–I3)
@@ -44,7 +44,7 @@ is not consumed; idempotency guaranteed by the research service); I2 file contra
 sections (FACT / CALCULATION / INFERENCE / CHECK); I3 four MCP tools (submit_review / get_task /
 get_context / list_pending).
 
-## 3. I4/I5 Read-only Graph Queries (implemented, port 8012)
+## 3. I4/I5 Read-only Graph Queries (implemented, port 8020)
 
 | Endpoint | Params | Returns | Notes |
 |---|---|---|---|

@@ -53,7 +53,7 @@ fallback); I8 server-side numeric check (the guardrail is WB-internal); I9 alert
 | `GET /market/history/{symbol}` | **Disabled** (stock-price) | Same as above | — |
 | `GET /stocks/search?q=` | **Adopted** (as-is) | Company-pool search (ticker↔object_id resolution) | `stocks_search.response.json` |
 | `GET /financial/reports/{symbol}?period=` | **Adopted** (excerpt-level) | Periodic-report events with excerpts (≈ former I4 announcements) | `financial_reports.response.json` |
-| `GET /financial/indicators/{symbol}?period=` | **Adopted** (live on 8012) | Deterministic computed metrics (≈ former I4 metrics) | `financial_indicators.response.json` |
+| `GET /financial/indicators/{symbol}?period=` | **Adopted** (live on 8020) | Deterministic computed metrics (≈ former I4 metrics) | `financial_indicators.response.json` |
 
 ### 2.2 AI Analysis and Prediction APIs
 

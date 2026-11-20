@@ -3082,7 +3082,7 @@ fn guardrail_facts(
 }
 
 /// Port of the research API base URL, for the sidebar's quiet meta line
-/// (`api :8012 · I1 :8898`) — full URLs overflow a 232px column mid-value.
+/// (`api :8020 · I1 :8898`) — full URLs overflow a 232px column mid-value.
 fn api_port(base: &str) -> &str {
     let rest = base
         .trim_start_matches("https://")
