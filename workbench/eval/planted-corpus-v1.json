@@ -1,0 +1,4915 @@
+{
+  "version": "1.0",
+  "created": "2026-11-22",
+  "source": "api_mock financial_reports.*.json (excerpt) and financial_indicators.*.json (deterministic metrics)",
+  "rule": "No evidence fact is derived from the brief's CALCULATION section.",
+  "cases": [
+    {
+      "id": "response-clean_amount",
+      "base_task": "RT-PR-EV-20261029-1225636931-S300806",
+      "condition": "clean_amount",
+      "note": "real amount, must not be blocked",
+      "inference": "营业收入24.83亿元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636931",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636931.PDF",
+        "excerpt": "前三季度营业收入24.83亿元，同比增长10.90%；归母净利润6693.78万元，同比增长47.86%；扣非净利润5042.06万元，同比增长98.64%。第三季度单季营收8.90亿元，同比增长5.57%，归母净利润2092.60万元，同比增长4.41%。经营活动现金流量净额-7483.90万元，同比下降127.02%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 24.83,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.669378,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.504206,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": -0.74839,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.9,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 47.86,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "24.83",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "response-invented_difference",
+      "base_task": "RT-PR-EV-20261029-1225636931-S300806",
+      "condition": "invented_difference",
+      "note": "model-computed number absent from evidence",
+      "inference": "扣非低于归母约1652万元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636931",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636931.PDF",
+        "excerpt": "前三季度营业收入24.83亿元，同比增长10.90%；归母净利润6693.78万元，同比增长47.86%；扣非净利润5042.06万元，同比增长98.64%。第三季度单季营收8.90亿元，同比增长5.57%，归母净利润2092.60万元，同比增长4.41%。经营活动现金流量净额-7483.90万元，同比下降127.02%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 24.83,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.669378,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.504206,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": -0.74839,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.9,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 47.86,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "1652",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "response-near_miss_outside",
+      "base_task": "RT-PR-EV-20261029-1225636931-S300806",
+      "condition": "near_miss_outside",
+      "note": "2% above the evidence amount, outside the 1% band",
+      "inference": "营业收入25.3266亿元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636931",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636931.PDF",
+        "excerpt": "前三季度营业收入24.83亿元，同比增长10.90%；归母净利润6693.78万元，同比增长47.86%；扣非净利润5042.06万元，同比增长98.64%。第三季度单季营收8.90亿元，同比增长5.57%，归母净利润2092.60万元，同比增长4.41%。经营活动现金流量净额-7483.90万元，同比下降127.02%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 24.83,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.669378,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.504206,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": -0.74839,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.9,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 47.86,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "25.3266",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "response-within_tolerance",
+      "base_task": "RT-PR-EV-20261029-1225636931-S300806",
+      "condition": "within_tolerance",
+      "note": "0.5% above the evidence amount, inside the tolerance",
+      "inference": "营业收入24.9541亿元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636931",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636931.PDF",
+        "excerpt": "前三季度营业收入24.83亿元，同比增长10.90%；归母净利润6693.78万元，同比增长47.86%；扣非净利润5042.06万元，同比增长98.64%。第三季度单季营收8.90亿元，同比增长5.57%，归母净利润2092.60万元，同比增长4.41%。经营活动现金流量净额-7483.90万元，同比下降127.02%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 24.83,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.669378,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.504206,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": -0.74839,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.9,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 47.86,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "24.9541",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "response-wrong_account",
+      "base_task": "RT-PR-EV-20261029-1225636931-S300806",
+      "condition": "wrong_account",
+      "note": "net profit value attributed to revenue",
+      "inference": "营业收入0.6694亿元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636931",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636931.PDF",
+        "excerpt": "前三季度营业收入24.83亿元，同比增长10.90%；归母净利润6693.78万元，同比增长47.86%；扣非净利润5042.06万元，同比增长98.64%。第三季度单季营收8.90亿元，同比增长5.57%，归母净利润2092.60万元，同比增长4.41%。经营活动现金流量净额-7483.90万元，同比下降127.02%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 24.83,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.669378,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.504206,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": -0.74839,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.9,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 47.86,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "0.6694",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "response-wrong_period",
+      "base_task": "RT-PR-EV-20261029-1225636931-S300806",
+      "condition": "wrong_period",
+      "note": "Q2 claim against an M9 fact",
+      "inference": "2026Q2营业收入24.83亿元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636931",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636931.PDF",
+        "excerpt": "前三季度营业收入24.83亿元，同比增长10.90%；归母净利润6693.78万元，同比增长47.86%；扣非净利润5042.06万元，同比增长98.64%。第三季度单季营收8.90亿元，同比增长5.57%，归母净利润2092.60万元，同比增长4.41%。经营活动现金流量净额-7483.90万元，同比下降127.02%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 24.83,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.669378,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.504206,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": -0.74839,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.9,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 47.86,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "24.83",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "response-wrong_scope",
+      "base_task": "RT-PR-EV-20261029-1225636931-S300806",
+      "condition": "wrong_scope",
+      "note": "consolidated claim against a parent-scope fact",
+      "inference": "合并口径净利润0.6694亿元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636931",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636931.PDF",
+        "excerpt": "前三季度营业收入24.83亿元，同比增长10.90%；归母净利润6693.78万元，同比增长47.86%；扣非净利润5042.06万元，同比增长98.64%。第三季度单季营收8.90亿元，同比增长5.57%，归母净利润2092.60万元，同比增长4.41%。经营活动现金流量净额-7483.90万元，同比下降127.02%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 24.83,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.669378,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.504206,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": -0.74839,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.9,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 47.86,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "0.6694",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "fenghua-clean_amount",
+      "base_task": "RT-PR-EV-20261024-1225621037-S000636",
+      "condition": "clean_amount",
+      "note": "real amount, must not be blocked",
+      "inference": "营业收入57.99亿元。",
+      "evidence": {
+        "event_id": "EV-20261024-1225621037",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-24/1225621037.PDF",
+        "excerpt": "风华高科发布2026年三季度报告：前三季度营业收入57.99亿元，同比增长41.15%；归母净利润6.42亿元，同比增长180.90%；扣非净利润6.36亿元，同比增长174.14%；第三季度单季营业收入22.99亿元，同比增长71.97%，归母净利润3.51亿元，同比增长470.17%；经营活动现金流量净额6.23亿元，同比增长140.71%。公司口径：主营产品市场需求持续增长，销量及单价同比上升。（2026-10-31 数据修正：原摘要因抽取失败缺失业绩数据，按公告原文主要会计数据补录）",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-24",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 57.99,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 6.42,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 6.23,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 41.15,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.07,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "57.99",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "fenghua-invented_difference",
+      "base_task": "RT-PR-EV-20261024-1225621037-S000636",
+      "condition": "invented_difference",
+      "note": "model-computed number absent from evidence",
+      "inference": "扣非低于归母约1652万元。",
+      "evidence": {
+        "event_id": "EV-20261024-1225621037",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-24/1225621037.PDF",
+        "excerpt": "风华高科发布2026年三季度报告：前三季度营业收入57.99亿元，同比增长41.15%；归母净利润6.42亿元，同比增长180.90%；扣非净利润6.36亿元，同比增长174.14%；第三季度单季营业收入22.99亿元，同比增长71.97%，归母净利润3.51亿元，同比增长470.17%；经营活动现金流量净额6.23亿元，同比增长140.71%。公司口径：主营产品市场需求持续增长，销量及单价同比上升。（2026-10-31 数据修正：原摘要因抽取失败缺失业绩数据，按公告原文主要会计数据补录）",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-24",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 57.99,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 6.42,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 6.23,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 41.15,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.07,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "1652",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "fenghua-near_miss_outside",
+      "base_task": "RT-PR-EV-20261024-1225621037-S000636",
+      "condition": "near_miss_outside",
+      "note": "2% above the evidence amount, outside the 1% band",
+      "inference": "营业收入59.1498亿元。",
+      "evidence": {
+        "event_id": "EV-20261024-1225621037",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-24/1225621037.PDF",
+        "excerpt": "风华高科发布2026年三季度报告：前三季度营业收入57.99亿元，同比增长41.15%；归母净利润6.42亿元，同比增长180.90%；扣非净利润6.36亿元，同比增长174.14%；第三季度单季营业收入22.99亿元，同比增长71.97%，归母净利润3.51亿元，同比增长470.17%；经营活动现金流量净额6.23亿元，同比增长140.71%。公司口径：主营产品市场需求持续增长，销量及单价同比上升。（2026-10-31 数据修正：原摘要因抽取失败缺失业绩数据，按公告原文主要会计数据补录）",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-24",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 57.99,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 6.42,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 6.23,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 41.15,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.07,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "59.1498",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "fenghua-within_tolerance",
+      "base_task": "RT-PR-EV-20261024-1225621037-S000636",
+      "condition": "within_tolerance",
+      "note": "0.5% above the evidence amount, inside the tolerance",
+      "inference": "营业收入58.2799亿元。",
+      "evidence": {
+        "event_id": "EV-20261024-1225621037",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-24/1225621037.PDF",
+        "excerpt": "风华高科发布2026年三季度报告：前三季度营业收入57.99亿元，同比增长41.15%；归母净利润6.42亿元，同比增长180.90%；扣非净利润6.36亿元，同比增长174.14%；第三季度单季营业收入22.99亿元，同比增长71.97%，归母净利润3.51亿元，同比增长470.17%；经营活动现金流量净额6.23亿元，同比增长140.71%。公司口径：主营产品市场需求持续增长，销量及单价同比上升。（2026-10-31 数据修正：原摘要因抽取失败缺失业绩数据，按公告原文主要会计数据补录）",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-24",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 57.99,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 6.42,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 6.23,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 41.15,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.07,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "58.2799",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "fenghua-wrong_account",
+      "base_task": "RT-PR-EV-20261024-1225621037-S000636",
+      "condition": "wrong_account",
+      "note": "net profit value attributed to revenue",
+      "inference": "营业收入6.42亿元。",
+      "evidence": {
+        "event_id": "EV-20261024-1225621037",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-24/1225621037.PDF",
+        "excerpt": "风华高科发布2026年三季度报告：前三季度营业收入57.99亿元，同比增长41.15%；归母净利润6.42亿元，同比增长180.90%；扣非净利润6.36亿元，同比增长174.14%；第三季度单季营业收入22.99亿元，同比增长71.97%，归母净利润3.51亿元，同比增长470.17%；经营活动现金流量净额6.23亿元，同比增长140.71%。公司口径：主营产品市场需求持续增长，销量及单价同比上升。（2026-10-31 数据修正：原摘要因抽取失败缺失业绩数据，按公告原文主要会计数据补录）",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-24",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 57.99,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 6.42,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 6.23,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 41.15,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.07,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "6.42",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "fenghua-wrong_period",
+      "base_task": "RT-PR-EV-20261024-1225621037-S000636",
+      "condition": "wrong_period",
+      "note": "Q2 claim against an M9 fact",
+      "inference": "2026Q2营业收入57.99亿元。",
+      "evidence": {
+        "event_id": "EV-20261024-1225621037",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-24/1225621037.PDF",
+        "excerpt": "风华高科发布2026年三季度报告：前三季度营业收入57.99亿元，同比增长41.15%；归母净利润6.42亿元，同比增长180.90%；扣非净利润6.36亿元，同比增长174.14%；第三季度单季营业收入22.99亿元，同比增长71.97%，归母净利润3.51亿元，同比增长470.17%；经营活动现金流量净额6.23亿元，同比增长140.71%。公司口径：主营产品市场需求持续增长，销量及单价同比上升。（2026-10-31 数据修正：原摘要因抽取失败缺失业绩数据，按公告原文主要会计数据补录）",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-24",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 57.99,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 6.42,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 6.23,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 41.15,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.07,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "57.99",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "fenghua-wrong_scope",
+      "base_task": "RT-PR-EV-20261024-1225621037-S000636",
+      "condition": "wrong_scope",
+      "note": "consolidated claim against a parent-scope fact",
+      "inference": "合并口径净利润6.42亿元。",
+      "evidence": {
+        "event_id": "EV-20261024-1225621037",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-24/1225621037.PDF",
+        "excerpt": "风华高科发布2026年三季度报告：前三季度营业收入57.99亿元，同比增长41.15%；归母净利润6.42亿元，同比增长180.90%；扣非净利润6.36亿元，同比增长174.14%；第三季度单季营业收入22.99亿元，同比增长71.97%，归母净利润3.51亿元，同比增长470.17%；经营活动现金流量净额6.23亿元，同比增长140.71%。公司口径：主营产品市场需求持续增长，销量及单价同比上升。（2026-10-31 数据修正：原摘要因抽取失败缺失业绩数据，按公告原文主要会计数据补录）",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-24",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 57.99,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 6.42,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 6.23,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 41.15,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.07,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "6.42",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "jiemei-clean_amount",
+      "base_task": "RT-PR-EV-20261026-1225619948-S002859",
+      "condition": "clean_amount",
+      "note": "real amount, must not be blocked",
+      "inference": "营业收入7.71亿元。",
+      "evidence": {
+        "event_id": "EV-20261026-1225619948",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-26/1225619948.PDF",
+        "excerpt": "洁美科技（002859）发布2026年三季报：第三季度营业收入7.71亿元，同比增长36.80%；归母净利润8552.96万元，同比增长10.46%。年初至报告期末营业收入19.40亿元，同比增长27.10%；归母净利润2.23亿元，同比增长26.93%；扣非净利润1.86亿元，同比增长9.07%。经营活动现金流量净额1.63亿元，同比下降21.14%。非经常性损益合计3692.58万元，主要系非流动性资产处置收益。固定资产较期初上升42.07%，系电子级BOPET膜二期、江西电材退城入园及天津电材华北产研总部基地项目部分资产转固。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-26",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 7.71,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.855296,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 1.63,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.8,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 10.46,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.09,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "7.71",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "jiemei-invented_difference",
+      "base_task": "RT-PR-EV-20261026-1225619948-S002859",
+      "condition": "invented_difference",
+      "note": "model-computed number absent from evidence",
+      "inference": "扣非低于归母约1652万元。",
+      "evidence": {
+        "event_id": "EV-20261026-1225619948",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-26/1225619948.PDF",
+        "excerpt": "洁美科技（002859）发布2026年三季报：第三季度营业收入7.71亿元，同比增长36.80%；归母净利润8552.96万元，同比增长10.46%。年初至报告期末营业收入19.40亿元，同比增长27.10%；归母净利润2.23亿元，同比增长26.93%；扣非净利润1.86亿元，同比增长9.07%。经营活动现金流量净额1.63亿元，同比下降21.14%。非经常性损益合计3692.58万元，主要系非流动性资产处置收益。固定资产较期初上升42.07%，系电子级BOPET膜二期、江西电材退城入园及天津电材华北产研总部基地项目部分资产转固。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-26",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 7.71,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.855296,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 1.63,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.8,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 10.46,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.09,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "1652",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "jiemei-near_miss_outside",
+      "base_task": "RT-PR-EV-20261026-1225619948-S002859",
+      "condition": "near_miss_outside",
+      "note": "2% above the evidence amount, outside the 1% band",
+      "inference": "营业收入7.8642亿元。",
+      "evidence": {
+        "event_id": "EV-20261026-1225619948",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-26/1225619948.PDF",
+        "excerpt": "洁美科技（002859）发布2026年三季报：第三季度营业收入7.71亿元，同比增长36.80%；归母净利润8552.96万元，同比增长10.46%。年初至报告期末营业收入19.40亿元，同比增长27.10%；归母净利润2.23亿元，同比增长26.93%；扣非净利润1.86亿元，同比增长9.07%。经营活动现金流量净额1.63亿元，同比下降21.14%。非经常性损益合计3692.58万元，主要系非流动性资产处置收益。固定资产较期初上升42.07%，系电子级BOPET膜二期、江西电材退城入园及天津电材华北产研总部基地项目部分资产转固。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-26",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 7.71,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.855296,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 1.63,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.8,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 10.46,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.09,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "7.8642",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "jiemei-within_tolerance",
+      "base_task": "RT-PR-EV-20261026-1225619948-S002859",
+      "condition": "within_tolerance",
+      "note": "0.5% above the evidence amount, inside the tolerance",
+      "inference": "营业收入7.7485亿元。",
+      "evidence": {
+        "event_id": "EV-20261026-1225619948",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-26/1225619948.PDF",
+        "excerpt": "洁美科技（002859）发布2026年三季报：第三季度营业收入7.71亿元，同比增长36.80%；归母净利润8552.96万元，同比增长10.46%。年初至报告期末营业收入19.40亿元，同比增长27.10%；归母净利润2.23亿元，同比增长26.93%；扣非净利润1.86亿元，同比增长9.07%。经营活动现金流量净额1.63亿元，同比下降21.14%。非经常性损益合计3692.58万元，主要系非流动性资产处置收益。固定资产较期初上升42.07%，系电子级BOPET膜二期、江西电材退城入园及天津电材华北产研总部基地项目部分资产转固。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-26",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 7.71,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.855296,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 1.63,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.8,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 10.46,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.09,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "7.7485",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "jiemei-wrong_account",
+      "base_task": "RT-PR-EV-20261026-1225619948-S002859",
+      "condition": "wrong_account",
+      "note": "net profit value attributed to revenue",
+      "inference": "营业收入0.8553亿元。",
+      "evidence": {
+        "event_id": "EV-20261026-1225619948",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-26/1225619948.PDF",
+        "excerpt": "洁美科技（002859）发布2026年三季报：第三季度营业收入7.71亿元，同比增长36.80%；归母净利润8552.96万元，同比增长10.46%。年初至报告期末营业收入19.40亿元，同比增长27.10%；归母净利润2.23亿元，同比增长26.93%；扣非净利润1.86亿元，同比增长9.07%。经营活动现金流量净额1.63亿元，同比下降21.14%。非经常性损益合计3692.58万元，主要系非流动性资产处置收益。固定资产较期初上升42.07%，系电子级BOPET膜二期、江西电材退城入园及天津电材华北产研总部基地项目部分资产转固。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-26",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 7.71,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.855296,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 1.63,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.8,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 10.46,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.09,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "0.8553",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "jiemei-wrong_period",
+      "base_task": "RT-PR-EV-20261026-1225619948-S002859",
+      "condition": "wrong_period",
+      "note": "Q2 claim against an M9 fact",
+      "inference": "2026Q2营业收入7.71亿元。",
+      "evidence": {
+        "event_id": "EV-20261026-1225619948",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-26/1225619948.PDF",
+        "excerpt": "洁美科技（002859）发布2026年三季报：第三季度营业收入7.71亿元，同比增长36.80%；归母净利润8552.96万元，同比增长10.46%。年初至报告期末营业收入19.40亿元，同比增长27.10%；归母净利润2.23亿元，同比增长26.93%；扣非净利润1.86亿元，同比增长9.07%。经营活动现金流量净额1.63亿元，同比下降21.14%。非经常性损益合计3692.58万元，主要系非流动性资产处置收益。固定资产较期初上升42.07%，系电子级BOPET膜二期、江西电材退城入园及天津电材华北产研总部基地项目部分资产转固。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-26",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 7.71,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.855296,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 1.63,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.8,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 10.46,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.09,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "7.71",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "jiemei-wrong_scope",
+      "base_task": "RT-PR-EV-20261026-1225619948-S002859",
+      "condition": "wrong_scope",
+      "note": "consolidated claim against a parent-scope fact",
+      "inference": "合并口径净利润0.8553亿元。",
+      "evidence": {
+        "event_id": "EV-20261026-1225619948",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-26/1225619948.PDF",
+        "excerpt": "洁美科技（002859）发布2026年三季报：第三季度营业收入7.71亿元，同比增长36.80%；归母净利润8552.96万元，同比增长10.46%。年初至报告期末营业收入19.40亿元，同比增长27.10%；归母净利润2.23亿元，同比增长26.93%；扣非净利润1.86亿元，同比增长9.07%。经营活动现金流量净额1.63亿元，同比下降21.14%。非经常性损益合计3692.58万元，主要系非流动性资产处置收益。固定资产较期初上升42.07%，系电子级BOPET膜二期、江西电材退城入园及天津电材华北产研总部基地项目部分资产转固。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-26",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 7.71,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.855296,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 1.63,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.8,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 10.46,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 11.09,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "0.8553",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "jizhi-clean_amount",
+      "base_task": "RT-PR-EV-20261028-1225631230-S300566",
+      "condition": "clean_amount",
+      "note": "real amount, must not be blocked",
+      "inference": "营业收入5.05亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "5.05",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "jizhi-invented_difference",
+      "base_task": "RT-PR-EV-20261028-1225631230-S300566",
+      "condition": "invented_difference",
+      "note": "model-computed number absent from evidence",
+      "inference": "扣非低于归母约1652万元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "1652",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "jizhi-near_miss_outside",
+      "base_task": "RT-PR-EV-20261028-1225631230-S300566",
+      "condition": "near_miss_outside",
+      "note": "2% above the evidence amount, outside the 1% band",
+      "inference": "营业收入5.151亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "5.151",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "jizhi-within_tolerance",
+      "base_task": "RT-PR-EV-20261028-1225631230-S300566",
+      "condition": "within_tolerance",
+      "note": "0.5% above the evidence amount, inside the tolerance",
+      "inference": "营业收入5.0752亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "5.0752",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "jizhi-wrong_account",
+      "base_task": "RT-PR-EV-20261028-1225631230-S300566",
+      "condition": "wrong_account",
+      "note": "net profit value attributed to revenue",
+      "inference": "营业收入0.1676亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "0.1676",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "jizhi-wrong_period",
+      "base_task": "RT-PR-EV-20261028-1225631230-S300566",
+      "condition": "wrong_period",
+      "note": "Q2 claim against an M9 fact",
+      "inference": "2026Q2营业收入5.05亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "5.05",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "jizhi-wrong_scope",
+      "base_task": "RT-PR-EV-20261028-1225631230-S300566",
+      "condition": "wrong_scope",
+      "note": "consolidated claim against a parent-scope fact",
+      "inference": "合并口径净利润0.1676亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "0.1676",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "shuangxing-clean_amount",
+      "base_task": "RT-PR-EV-20261028-1225631484-S002585",
+      "condition": "clean_amount",
+      "note": "real amount, must not be blocked",
+      "inference": "营业收入40.35亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631484",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631484.PDF",
+        "excerpt": "双星新材（002585）发布2026年三季报：前三季度实现营业收入40.35亿元，同比增长3.63%；归母净利润1229.41万元，同比增长105.52%，实现扭亏为盈；扣非净利润-4570.80万元，亏损同比收窄82.47%；经营性现金流净额4.45亿元，同比增长217.16%。单三季度营收13.06亿元，同比增长3.11%；归母净利润-3347.93万元，亏损同比收窄54.40%。非经常性损益合计5800.21万元，主要来自非流动金融资产公允价值变动损益4230万元及政府补助2414.50万元。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 40.35,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.12294100000000001,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 3.63,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 105.52,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 0.3,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "40.35",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "shuangxing-invented_difference",
+      "base_task": "RT-PR-EV-20261028-1225631484-S002585",
+      "condition": "invented_difference",
+      "note": "model-computed number absent from evidence",
+      "inference": "扣非低于归母约1652万元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631484",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631484.PDF",
+        "excerpt": "双星新材（002585）发布2026年三季报：前三季度实现营业收入40.35亿元，同比增长3.63%；归母净利润1229.41万元，同比增长105.52%，实现扭亏为盈；扣非净利润-4570.80万元，亏损同比收窄82.47%；经营性现金流净额4.45亿元，同比增长217.16%。单三季度营收13.06亿元，同比增长3.11%；归母净利润-3347.93万元，亏损同比收窄54.40%。非经常性损益合计5800.21万元，主要来自非流动金融资产公允价值变动损益4230万元及政府补助2414.50万元。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 40.35,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.12294100000000001,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 3.63,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 105.52,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 0.3,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "1652",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "shuangxing-near_miss_outside",
+      "base_task": "RT-PR-EV-20261028-1225631484-S002585",
+      "condition": "near_miss_outside",
+      "note": "2% above the evidence amount, outside the 1% band",
+      "inference": "营业收入41.157亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631484",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631484.PDF",
+        "excerpt": "双星新材（002585）发布2026年三季报：前三季度实现营业收入40.35亿元，同比增长3.63%；归母净利润1229.41万元，同比增长105.52%，实现扭亏为盈；扣非净利润-4570.80万元，亏损同比收窄82.47%；经营性现金流净额4.45亿元，同比增长217.16%。单三季度营收13.06亿元，同比增长3.11%；归母净利润-3347.93万元，亏损同比收窄54.40%。非经常性损益合计5800.21万元，主要来自非流动金融资产公允价值变动损益4230万元及政府补助2414.50万元。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 40.35,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.12294100000000001,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 3.63,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 105.52,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 0.3,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "41.157",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "shuangxing-within_tolerance",
+      "base_task": "RT-PR-EV-20261028-1225631484-S002585",
+      "condition": "within_tolerance",
+      "note": "0.5% above the evidence amount, inside the tolerance",
+      "inference": "营业收入40.5517亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631484",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631484.PDF",
+        "excerpt": "双星新材（002585）发布2026年三季报：前三季度实现营业收入40.35亿元，同比增长3.63%；归母净利润1229.41万元，同比增长105.52%，实现扭亏为盈；扣非净利润-4570.80万元，亏损同比收窄82.47%；经营性现金流净额4.45亿元，同比增长217.16%。单三季度营收13.06亿元，同比增长3.11%；归母净利润-3347.93万元，亏损同比收窄54.40%。非经常性损益合计5800.21万元，主要来自非流动金融资产公允价值变动损益4230万元及政府补助2414.50万元。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 40.35,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.12294100000000001,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 3.63,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 105.52,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 0.3,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "40.5517",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "shuangxing-wrong_account",
+      "base_task": "RT-PR-EV-20261028-1225631484-S002585",
+      "condition": "wrong_account",
+      "note": "net profit value attributed to revenue",
+      "inference": "营业收入0.1229亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631484",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631484.PDF",
+        "excerpt": "双星新材（002585）发布2026年三季报：前三季度实现营业收入40.35亿元，同比增长3.63%；归母净利润1229.41万元，同比增长105.52%，实现扭亏为盈；扣非净利润-4570.80万元，亏损同比收窄82.47%；经营性现金流净额4.45亿元，同比增长217.16%。单三季度营收13.06亿元，同比增长3.11%；归母净利润-3347.93万元，亏损同比收窄54.40%。非经常性损益合计5800.21万元，主要来自非流动金融资产公允价值变动损益4230万元及政府补助2414.50万元。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 40.35,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.12294100000000001,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 3.63,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 105.52,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 0.3,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "0.1229",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "shuangxing-wrong_period",
+      "base_task": "RT-PR-EV-20261028-1225631484-S002585",
+      "condition": "wrong_period",
+      "note": "Q2 claim against an M9 fact",
+      "inference": "2026Q2营业收入40.35亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631484",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631484.PDF",
+        "excerpt": "双星新材（002585）发布2026年三季报：前三季度实现营业收入40.35亿元，同比增长3.63%；归母净利润1229.41万元，同比增长105.52%，实现扭亏为盈；扣非净利润-4570.80万元，亏损同比收窄82.47%；经营性现金流净额4.45亿元，同比增长217.16%。单三季度营收13.06亿元，同比增长3.11%；归母净利润-3347.93万元，亏损同比收窄54.40%。非经常性损益合计5800.21万元，主要来自非流动金融资产公允价值变动损益4230万元及政府补助2414.50万元。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 40.35,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.12294100000000001,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 3.63,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 105.52,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 0.3,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "40.35",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "shuangxing-wrong_scope",
+      "base_task": "RT-PR-EV-20261028-1225631484-S002585",
+      "condition": "wrong_scope",
+      "note": "consolidated claim against a parent-scope fact",
+      "inference": "合并口径净利润0.1229亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631484",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631484.PDF",
+        "excerpt": "双星新材（002585）发布2026年三季报：前三季度实现营业收入40.35亿元，同比增长3.63%；归母净利润1229.41万元，同比增长105.52%，实现扭亏为盈；扣非净利润-4570.80万元，亏损同比收窄82.47%；经营性现金流净额4.45亿元，同比增长217.16%。单三季度营收13.06亿元，同比增长3.11%；归母净利润-3347.93万元，亏损同比收窄54.40%。非经常性损益合计5800.21万元，主要来自非流动金融资产公允价值变动损益4230万元及政府补助2414.50万元。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 40.35,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.12294100000000001,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 3.63,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 105.52,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 0.3,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "0.1229",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "yongguan_failed-clean_amount",
+      "base_task": "RT-PR-EV-20261029-1225636631-S603681",
+      "condition": "clean_amount",
+      "note": "real amount, must not be blocked",
+      "inference": "营业收入19.31亿元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636631",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636631.PDF",
+        "excerpt": "永冠新材发布2026年三季度报告：本报告期营业收入19.31亿元，同比增长10.29%；归母净利润3129.34万元，同比下降61.27%；扣非净利润669.78万元，同比下降51.94%。年初至报告期末营业收入55.11亿元，同比增长10.14%；归母净利润1.24亿元，同比增长10.69%；扣非净利润1691.11万元，同比下降9.86%；经营活动现金流量净额2.70亿元，同比下降26.71%。总资产80.48亿元，较上年末增长13.20%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 19.31,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.312934,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.066978,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.29,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": -61.27,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 1.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "19.31",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "yongguan_failed-invented_difference",
+      "base_task": "RT-PR-EV-20261029-1225636631-S603681",
+      "condition": "invented_difference",
+      "note": "model-computed number absent from evidence",
+      "inference": "扣非低于归母约1652万元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636631",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636631.PDF",
+        "excerpt": "永冠新材发布2026年三季度报告：本报告期营业收入19.31亿元，同比增长10.29%；归母净利润3129.34万元，同比下降61.27%；扣非净利润669.78万元，同比下降51.94%。年初至报告期末营业收入55.11亿元，同比增长10.14%；归母净利润1.24亿元，同比增长10.69%；扣非净利润1691.11万元，同比下降9.86%；经营活动现金流量净额2.70亿元，同比下降26.71%。总资产80.48亿元，较上年末增长13.20%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 19.31,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.312934,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.066978,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.29,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": -61.27,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 1.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "1652",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "yongguan_failed-near_miss_outside",
+      "base_task": "RT-PR-EV-20261029-1225636631-S603681",
+      "condition": "near_miss_outside",
+      "note": "2% above the evidence amount, outside the 1% band",
+      "inference": "营业收入19.6962亿元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636631",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636631.PDF",
+        "excerpt": "永冠新材发布2026年三季度报告：本报告期营业收入19.31亿元，同比增长10.29%；归母净利润3129.34万元，同比下降61.27%；扣非净利润669.78万元，同比下降51.94%。年初至报告期末营业收入55.11亿元，同比增长10.14%；归母净利润1.24亿元，同比增长10.69%；扣非净利润1691.11万元，同比下降9.86%；经营活动现金流量净额2.70亿元，同比下降26.71%。总资产80.48亿元，较上年末增长13.20%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 19.31,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.312934,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.066978,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.29,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": -61.27,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 1.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "19.6962",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "yongguan_failed-within_tolerance",
+      "base_task": "RT-PR-EV-20261029-1225636631-S603681",
+      "condition": "within_tolerance",
+      "note": "0.5% above the evidence amount, inside the tolerance",
+      "inference": "营业收入19.4065亿元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636631",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636631.PDF",
+        "excerpt": "永冠新材发布2026年三季度报告：本报告期营业收入19.31亿元，同比增长10.29%；归母净利润3129.34万元，同比下降61.27%；扣非净利润669.78万元，同比下降51.94%。年初至报告期末营业收入55.11亿元，同比增长10.14%；归母净利润1.24亿元，同比增长10.69%；扣非净利润1691.11万元，同比下降9.86%；经营活动现金流量净额2.70亿元，同比下降26.71%。总资产80.48亿元，较上年末增长13.20%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 19.31,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.312934,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.066978,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.29,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": -61.27,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 1.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "19.4065",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "yongguan_failed-wrong_account",
+      "base_task": "RT-PR-EV-20261029-1225636631-S603681",
+      "condition": "wrong_account",
+      "note": "net profit value attributed to revenue",
+      "inference": "营业收入0.3129亿元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636631",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636631.PDF",
+        "excerpt": "永冠新材发布2026年三季度报告：本报告期营业收入19.31亿元，同比增长10.29%；归母净利润3129.34万元，同比下降61.27%；扣非净利润669.78万元，同比下降51.94%。年初至报告期末营业收入55.11亿元，同比增长10.14%；归母净利润1.24亿元，同比增长10.69%；扣非净利润1691.11万元，同比下降9.86%；经营活动现金流量净额2.70亿元，同比下降26.71%。总资产80.48亿元，较上年末增长13.20%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 19.31,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.312934,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.066978,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.29,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": -61.27,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 1.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "0.3129",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "yongguan_failed-wrong_period",
+      "base_task": "RT-PR-EV-20261029-1225636631-S603681",
+      "condition": "wrong_period",
+      "note": "Q2 claim against an M9 fact",
+      "inference": "2026Q2营业收入19.31亿元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636631",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636631.PDF",
+        "excerpt": "永冠新材发布2026年三季度报告：本报告期营业收入19.31亿元，同比增长10.29%；归母净利润3129.34万元，同比下降61.27%；扣非净利润669.78万元，同比下降51.94%。年初至报告期末营业收入55.11亿元，同比增长10.14%；归母净利润1.24亿元，同比增长10.69%；扣非净利润1691.11万元，同比下降9.86%；经营活动现金流量净额2.70亿元，同比下降26.71%。总资产80.48亿元，较上年末增长13.20%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 19.31,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.312934,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.066978,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.29,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": -61.27,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 1.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "19.31",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "yongguan_failed-wrong_scope",
+      "base_task": "RT-PR-EV-20261029-1225636631-S603681",
+      "condition": "wrong_scope",
+      "note": "consolidated claim against a parent-scope fact",
+      "inference": "合并口径净利润0.3129亿元。",
+      "evidence": {
+        "event_id": "EV-20261029-1225636631",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-29/1225636631.PDF",
+        "excerpt": "永冠新材发布2026年三季度报告：本报告期营业收入19.31亿元，同比增长10.29%；归母净利润3129.34万元，同比下降61.27%；扣非净利润669.78万元，同比下降51.94%。年初至报告期末营业收入55.11亿元，同比增长10.14%；归母净利润1.24亿元，同比增长10.69%；扣非净利润1691.11万元，同比下降9.86%；经营活动现金流量净额2.70亿元，同比下降26.71%。总资产80.48亿元，较上年末增长13.20%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-29",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 19.31,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.312934,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.066978,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "ocf",
+            "metric_name": "ocf",
+            "base_metric_id": "",
+            "value": 2.7,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 10.29,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": -61.27,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 1.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "0.3129",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "deguan-clean_amount",
+      "base_task": "RT-PR-EV-20261028-1225631230-S001378",
+      "condition": "clean_amount",
+      "note": "real amount, must not be blocked",
+      "inference": "营业收入5.05亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "5.05",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "deguan-invented_difference",
+      "base_task": "RT-PR-EV-20261028-1225631230-S001378",
+      "condition": "invented_difference",
+      "note": "model-computed number absent from evidence",
+      "inference": "扣非低于归母约1652万元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "1652",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "deguan-near_miss_outside",
+      "base_task": "RT-PR-EV-20261028-1225631230-S001378",
+      "condition": "near_miss_outside",
+      "note": "2% above the evidence amount, outside the 1% band",
+      "inference": "营业收入5.151亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "5.151",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "deguan-within_tolerance",
+      "base_task": "RT-PR-EV-20261028-1225631230-S001378",
+      "condition": "within_tolerance",
+      "note": "0.5% above the evidence amount, inside the tolerance",
+      "inference": "营业收入5.0752亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "5.0752",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "deguan-wrong_account",
+      "base_task": "RT-PR-EV-20261028-1225631230-S001378",
+      "condition": "wrong_account",
+      "note": "net profit value attributed to revenue",
+      "inference": "营业收入0.1676亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "0.1676",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "deguan-wrong_period",
+      "base_task": "RT-PR-EV-20261028-1225631230-S001378",
+      "condition": "wrong_period",
+      "note": "Q2 claim against an M9 fact",
+      "inference": "2026Q2营业收入5.05亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "5.05",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "deguan-wrong_scope",
+      "base_task": "RT-PR-EV-20261028-1225631230-S001378",
+      "condition": "wrong_scope",
+      "note": "consolidated claim against a parent-scope fact",
+      "inference": "合并口径净利润0.1676亿元。",
+      "evidence": {
+        "event_id": "EV-20261028-1225631230",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-28/1225631230.PDF",
+        "excerpt": "德冠新材（001378）发布2026年三季度报告：第三季度营业收入5.05亿元，同比增长36.87%；归母净利润1676.45万元，同比下降24.80%。年初至报告期末营业收入13.90亿元，同比增长25.74%；归母净利润7770.17万元，同比增长30.60%；扣非净利润7210.08万元，同比增长46.05%。经营活动现金流净额1.41亿元，同比下降7.11%。公司加大功能薄膜生产线投入，在建工程较期初增长280.30%，并增加理财配置及银行借款。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-28",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 5.05,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 0.16764500000000002,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit_deducted",
+            "metric_name": "net_profit_deducted",
+            "base_metric_id": "",
+            "value": 0.721008,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "deducted",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 36.87,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 30.6,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 3.32,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "0.1676",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "luxshare_v2-clean_amount",
+      "base_task": "RT-PR-EV-20261030-1225645369-S002475",
+      "condition": "clean_amount",
+      "note": "real amount, must not be blocked",
+      "inference": "营业收入1105.07亿元。",
+      "evidence": {
+        "event_id": "EV-20261030-1225645369",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-30/1225645369.PDF",
+        "excerpt": "立讯精密发布2026年三季度报告：第三季度营业收入1105.07亿元，同比增长14.62%；归母净利润52.14亿元，同比增长6.98%；扣非净利润44.12亿元，同比增长11.91%。年初至报告期末营业收入2850.12亿元，同比增长29.01%；归母净利润130.57亿元，同比增长13.36%。经营活动现金流净额-64.34亿元，同比下降285%，主要系支付供应商到期货款及员工薪酬所致。总资产4117.43亿元，较上年末增长34.32%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-30",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 1105.07,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 52.14,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 14.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 6.98,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 4.72,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "1105.07",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "luxshare_v2-invented_difference",
+      "base_task": "RT-PR-EV-20261030-1225645369-S002475",
+      "condition": "invented_difference",
+      "note": "model-computed number absent from evidence",
+      "inference": "扣非低于归母约1652万元。",
+      "evidence": {
+        "event_id": "EV-20261030-1225645369",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-30/1225645369.PDF",
+        "excerpt": "立讯精密发布2026年三季度报告：第三季度营业收入1105.07亿元，同比增长14.62%；归母净利润52.14亿元，同比增长6.98%；扣非净利润44.12亿元，同比增长11.91%。年初至报告期末营业收入2850.12亿元，同比增长29.01%；归母净利润130.57亿元，同比增长13.36%。经营活动现金流净额-64.34亿元，同比下降285%，主要系支付供应商到期货款及员工薪酬所致。总资产4117.43亿元，较上年末增长34.32%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-30",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 1105.07,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 52.14,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 14.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 6.98,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 4.72,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "1652",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "luxshare_v2-near_miss_outside",
+      "base_task": "RT-PR-EV-20261030-1225645369-S002475",
+      "condition": "near_miss_outside",
+      "note": "2% above the evidence amount, outside the 1% band",
+      "inference": "营业收入1127.1714亿元。",
+      "evidence": {
+        "event_id": "EV-20261030-1225645369",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-30/1225645369.PDF",
+        "excerpt": "立讯精密发布2026年三季度报告：第三季度营业收入1105.07亿元，同比增长14.62%；归母净利润52.14亿元，同比增长6.98%；扣非净利润44.12亿元，同比增长11.91%。年初至报告期末营业收入2850.12亿元，同比增长29.01%；归母净利润130.57亿元，同比增长13.36%。经营活动现金流净额-64.34亿元，同比下降285%，主要系支付供应商到期货款及员工薪酬所致。总资产4117.43亿元，较上年末增长34.32%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-30",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 1105.07,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 52.14,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 14.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 6.98,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 4.72,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "1127.1714",
+          "value": "flag",
+          "binding": "unsupported"
+        }
+      ]
+    },
+    {
+      "id": "luxshare_v2-within_tolerance",
+      "base_task": "RT-PR-EV-20261030-1225645369-S002475",
+      "condition": "within_tolerance",
+      "note": "0.5% above the evidence amount, inside the tolerance",
+      "inference": "营业收入1110.5953亿元。",
+      "evidence": {
+        "event_id": "EV-20261030-1225645369",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-30/1225645369.PDF",
+        "excerpt": "立讯精密发布2026年三季度报告：第三季度营业收入1105.07亿元，同比增长14.62%；归母净利润52.14亿元，同比增长6.98%；扣非净利润44.12亿元，同比增长11.91%。年初至报告期末营业收入2850.12亿元，同比增长29.01%；归母净利润130.57亿元，同比增长13.36%。经营活动现金流净额-64.34亿元，同比下降285%，主要系支付供应商到期货款及员工薪酬所致。总资产4117.43亿元，较上年末增长34.32%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-30",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 1105.07,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 52.14,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 14.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 6.98,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 4.72,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "1110.5953",
+          "value": "pass",
+          "binding": "ok"
+        }
+      ]
+    },
+    {
+      "id": "luxshare_v2-wrong_account",
+      "base_task": "RT-PR-EV-20261030-1225645369-S002475",
+      "condition": "wrong_account",
+      "note": "net profit value attributed to revenue",
+      "inference": "营业收入52.14亿元。",
+      "evidence": {
+        "event_id": "EV-20261030-1225645369",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-30/1225645369.PDF",
+        "excerpt": "立讯精密发布2026年三季度报告：第三季度营业收入1105.07亿元，同比增长14.62%；归母净利润52.14亿元，同比增长6.98%；扣非净利润44.12亿元，同比增长11.91%。年初至报告期末营业收入2850.12亿元，同比增长29.01%；归母净利润130.57亿元，同比增长13.36%。经营活动现金流净额-64.34亿元，同比下降285%，主要系支付供应商到期货款及员工薪酬所致。总资产4117.43亿元，较上年末增长34.32%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-30",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 1105.07,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 52.14,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 14.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 6.98,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 4.72,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "52.14",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "luxshare_v2-wrong_period",
+      "base_task": "RT-PR-EV-20261030-1225645369-S002475",
+      "condition": "wrong_period",
+      "note": "Q2 claim against an M9 fact",
+      "inference": "2026Q2营业收入1105.07亿元。",
+      "evidence": {
+        "event_id": "EV-20261030-1225645369",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-30/1225645369.PDF",
+        "excerpt": "立讯精密发布2026年三季度报告：第三季度营业收入1105.07亿元，同比增长14.62%；归母净利润52.14亿元，同比增长6.98%；扣非净利润44.12亿元，同比增长11.91%。年初至报告期末营业收入2850.12亿元，同比增长29.01%；归母净利润130.57亿元，同比增长13.36%。经营活动现金流净额-64.34亿元，同比下降285%，主要系支付供应商到期货款及员工薪酬所致。总资产4117.43亿元，较上年末增长34.32%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-30",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 1105.07,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 52.14,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 14.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 6.98,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 4.72,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "1105.07",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    },
+    {
+      "id": "luxshare_v2-wrong_scope",
+      "base_task": "RT-PR-EV-20261030-1225645369-S002475",
+      "condition": "wrong_scope",
+      "note": "consolidated claim against a parent-scope fact",
+      "inference": "合并口径净利润52.14亿元。",
+      "evidence": {
+        "event_id": "EV-20261030-1225645369",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-10-30/1225645369.PDF",
+        "excerpt": "立讯精密发布2026年三季度报告：第三季度营业收入1105.07亿元，同比增长14.62%；归母净利润52.14亿元，同比增长6.98%；扣非净利润44.12亿元，同比增长11.91%。年初至报告期末营业收入2850.12亿元，同比增长29.01%；归母净利润130.57亿元，同比增长13.36%。经营活动现金流净额-64.34亿元，同比下降285%，主要系支付供应商到期货款及员工薪酬所致。总资产4117.43亿元，较上年末增长34.32%。",
+        "locator": "公告摘录",
+        "fetched_at": "2026-10-30",
+        "facts": [
+          {
+            "metric_id": "revenue",
+            "metric_name": "revenue",
+            "base_metric_id": "",
+            "value": 1105.07,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "consolidated",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_profit",
+            "metric_name": "net_profit",
+            "base_metric_id": "",
+            "value": 52.14,
+            "unit": "亿元",
+            "period": "2026M9",
+            "scope": "parent",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "yoy_first",
+            "metric_name": "yoy_first",
+            "base_metric_id": "",
+            "value": 14.62,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "pct_change_event",
+            "metric_name": "pct_change_event",
+            "base_metric_id": "",
+            "value": 6.98,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          },
+          {
+            "metric_id": "net_margin_pct",
+            "metric_name": "net_margin_pct",
+            "base_metric_id": "",
+            "value": 4.72,
+            "unit": "%",
+            "period": "2026M9",
+            "scope": "",
+            "locator": "公告主要会计数据",
+            "source": "cninfo"
+          }
+        ]
+      },
+      "labels": [
+        {
+          "raw": "52.14",
+          "value": "pass",
+          "binding": "mismatch"
+        }
+      ]
+    }
+  ]
+}
