@@ -585,6 +585,47 @@ mod tests {
         ));
     }
 
+    /// The supervisor confirmed `facts[]` is optional. A pack without it must
+    /// still flag the planted difference, and binding facts must come from the
+    /// announcement summary and audit excerpt instead.
+    #[test]
+    fn facts_absent_falls_back_to_prose_and_still_flags_value() {
+        let summary = "摘要：前三季度营业收入24.83亿元，同比增长10.90%；经营活动现金流量净额-7483.90万元，同比下降127.02%。";
+        let evidence = crate::model::Evidence {
+            event_id: "EV-fallback".into(),
+            excerpt: "营业收入 2,482,691,849.55 元（同比 +10.90%）；经营活动产生的现金流量净额 -74,838,960.79 元（同比 -127.02%）。".into(),
+            ..Default::default()
+        };
+        assert!(evidence.facts.is_empty());
+        let facts = crate::binding::facts_from_sources(crate::binding::FactSources {
+            summary: Some(summary),
+            evidence: Some(&evidence),
+            ..Default::default()
+        });
+        assert!(!facts.is_empty(), "prose fallback must produce binding facts");
+
+        let text = "营业收入24.83亿元；归母净利润-7483.90万元；扣非低于归母约1652万元。";
+        let g = check_with_facts(text, &facts, &GuardrailConfig::default());
+        assert_eq!(g.violation_tokens(), vec!["1652"], "{:?}", g.violations);
+        assert!(!g.ok());
+
+        let b24 = g.bindings.iter().find(|b| b.raw == "24.83").unwrap();
+        assert_ne!(
+            b24.verdict,
+            BindingVerdict::Unsupported,
+            "value-traced number must receive a binding verdict from prose facts"
+        );
+        // The excerpt attributes -7483.90万元 to operating cash flow. Calling it
+        // net profit is right number, wrong account: prose facts carry the metric
+        // and scope, so binding must flag it even without structured facts.
+        let wrong_account = g.bindings.iter().find(|b| b.raw.contains("7483")).unwrap();
+        assert!(
+            matches!(wrong_account.verdict, BindingVerdict::Mismatch { .. }),
+            "wrong-account claim should be advisory, got {:?}",
+            wrong_account.verdict
+        );
+    }
+
     #[test]
     fn binding_flags_wrong_period_without_a_value_flag() {
         let fact = EvidenceFact {
